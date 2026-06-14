@@ -9,4 +9,4 @@ void DMA_XferErrorCallback(DMA_HandleTypeDef *hdma);
 void sendCapture();
 void sendInfo();
 
-#include "../firmware/stm32_logic_analyzer/stm32_logic_analyzer.ino"
+#include "firmware/stm32_logic_analyzer/stm32_logic_analyzer.ino"
