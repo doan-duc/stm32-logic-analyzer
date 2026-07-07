@@ -123,6 +123,13 @@ def get_main_stylesheet():
         color: {COLORS['text_bright']};
     }}
 
+    QPushButton#modeBtn:checked {{
+        background-color: {COLORS['accent_primary']};
+        border: 1px solid {COLORS['accent_secondary']};
+        color: {COLORS['text_bright']};
+        font-weight: bold;
+    }}
+
     QPushButton#regionZoomBtn:checked {{
         background-color: {COLORS['accent_primary']};
         border: 1px solid {COLORS['accent_secondary']};
@@ -224,6 +231,16 @@ def get_main_stylesheet():
 
     QSlider::handle:horizontal:hover {{
         background: {COLORS['accent_secondary']};
+    }}
+
+    QSplitter::handle:vertical {{
+        background-color: {COLORS['border_light']};
+        height: 8px;
+        margin: 2px 0;
+    }}
+
+    QSplitter::handle:vertical:hover {{
+        background-color: {COLORS['accent_primary']};
     }}
 
     QScrollBar:horizontal {{

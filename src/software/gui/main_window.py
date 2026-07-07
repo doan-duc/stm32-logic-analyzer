@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QPushButton, QComboBox, 
                              QLabel, QStatusBar, QFrame, QSplitter, QSlider,
-                             QCheckBox)
+                             QCheckBox, QTableWidget, QTableWidgetItem)
 from PyQt5.QtCore import QThread, pyqtSignal, Qt, QTimer
 from PyQt5.QtGui import QFont
 from .waveform_view import WaveformView
@@ -11,6 +11,18 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from device import LogicAnalyzerDevice
 from capture import Capture
+from decoders import decode_i2c, decode_uart
+
+DEFAULT_CAPTURE_BUFFER_SAMPLES = 8192
+RATE_OPTIONS = [
+    (1_000, "1 kHz"),
+    (10_000, "10 kHz"),
+    (50_000, "50 kHz"),
+    (100_000, "100 kHz"),
+    (500_000, "500 kHz"),
+    (1_000_000, "1 MHz"),
+]
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -19,9 +31,12 @@ class MainWindow(QMainWindow):
         self.current_capture = None
         self.full_capture = None
         self.live_mode = False
+        self.capture_mode = "offline"
+        self.realtime_busy = False
         self.capture_count = 0
         self.live_buffer_max_samples = 204800
         self.live_render_samples = 8192
+        self.capture_buffer_samples = DEFAULT_CAPTURE_BUFFER_SAMPLES
         self.stream_dropped_frames = 0
         self.stream_corrupt_frames = 0
         
@@ -97,19 +112,9 @@ class MainWindow(QMainWindow):
         row1.addWidget(QLabel("Sample Rate:"))
         self.rate_combo = QComboBox()
         self.rate_combo.setMinimumWidth(160)
-        self.rate_combo.addItems([
-            "100 Hz (20s window)",
-            "1 kHz (2s window)",
-            "10 kHz (200ms window)",
-            "50 kHz (40ms window)",
-            "100 kHz (20ms window)",
-            "1 MHz (2ms window)",
-            "2 MHz (1ms window)",
-            "5 MHz (0.4ms window)",
-            "6 MHz (0.3ms window)",
-        ])
-        self.rate_combo.setCurrentIndex(4)
-        self.rate_combo.setToolTip("Sample rate (time window for 2048 samples)")
+        self.rate_combo.addItems(self.rate_window_labels())
+        self.rate_combo.setCurrentIndex(3)
+        self.update_rate_tooltip()
         self.rate_combo.currentIndexChanged.connect(self.on_rate_changed)
         row1.addWidget(self.rate_combo)
         
@@ -138,19 +143,42 @@ class MainWindow(QMainWindow):
         
         toolbar_layout.addLayout(row1)
         
-        # ROW 2: Live Capture Controls
+        # ROW 2: Mode Controls
         row2 = QHBoxLayout()
         row2.setSpacing(16)
         
-        # Live mode section
-        live_label = QLabel("LIVE MODE")
+        mode_label = QLabel("MODE")
+        mode_label.setObjectName("sectionLabel")
+        row2.addWidget(mode_label)
+
+        self.offline_mode_btn = QPushButton("Offline")
+        self.offline_mode_btn.setObjectName("modeBtn")
+        self.offline_mode_btn.setCheckable(True)
+        self.offline_mode_btn.setChecked(True)
+        self.offline_mode_btn.setToolTip("Single offline capture")
+        self.offline_mode_btn.clicked.connect(lambda: self.set_capture_mode("offline"))
+        row2.addWidget(self.offline_mode_btn)
+
+        self.realtime_mode_btn = QPushButton("Realtime")
+        self.realtime_mode_btn.setObjectName("modeBtn")
+        self.realtime_mode_btn.setCheckable(True)
+        self.realtime_mode_btn.setToolTip("Repeated capture display")
+        self.realtime_mode_btn.clicked.connect(lambda: self.set_capture_mode("realtime"))
+        row2.addWidget(self.realtime_mode_btn)
+
+        sep2 = QFrame()
+        sep2.setFrameShape(QFrame.VLine)
+        sep2.setFrameShadow(QFrame.Sunken)
+        row2.addWidget(sep2)
+
+        live_label = QLabel("REALTIME")
         live_label.setObjectName("sectionLabel")
         row2.addWidget(live_label)
         
-        self.live_btn = QPushButton("Start Live")
+        self.live_btn = QPushButton("Start Realtime")
         self.live_btn.setCheckable(True)
-        self.live_btn.setToolTip("Toggle live capture mode")
-        self.live_btn.setMinimumWidth(100)
+        self.live_btn.setToolTip("Start repeated captures")
+        self.live_btn.setMinimumWidth(130)
         self.live_btn.clicked.connect(self.toggle_live_mode)
         self.live_btn.setEnabled(False)
         row2.addWidget(self.live_btn)
@@ -190,6 +218,46 @@ class MainWindow(QMainWindow):
         row2.addStretch()
         
         toolbar_layout.addLayout(row2)
+
+        row3 = QHBoxLayout()
+        row3.setSpacing(16)
+
+        decode_label = QLabel("DECODE")
+        decode_label.setObjectName("sectionLabel")
+        row3.addWidget(decode_label)
+
+        row3.addWidget(QLabel("Protocol:"))
+        self.protocol_combo = QComboBox()
+        self.protocol_combo.addItems(["UART", "I2C"])
+        self.protocol_combo.currentIndexChanged.connect(self.on_decode_protocol_changed)
+        row3.addWidget(self.protocol_combo)
+
+        row3.addWidget(QLabel("RX/SCL:"))
+        self.decode_ch_a_combo = QComboBox()
+        self.decode_ch_a_combo.addItems([f"CH{i}" for i in range(8)])
+        self.decode_ch_a_combo.setCurrentIndex(0)
+        row3.addWidget(self.decode_ch_a_combo)
+
+        row3.addWidget(QLabel("SDA:"))
+        self.decode_ch_b_combo = QComboBox()
+        self.decode_ch_b_combo.addItems([f"CH{i}" for i in range(8)])
+        self.decode_ch_b_combo.setCurrentIndex(2)
+        row3.addWidget(self.decode_ch_b_combo)
+
+        row3.addWidget(QLabel("Baud:"))
+        self.baud_combo = QComboBox()
+        self.baud_combo.addItems(["2400", "4800", "9600", "38400", "57600", "115200"])
+        self.baud_combo.setCurrentText("2400")
+        row3.addWidget(self.baud_combo)
+
+        self.decode_btn = QPushButton("Decode")
+        self.decode_btn.setToolTip("Decode current captured waveform")
+        self.decode_btn.clicked.connect(self.decode_current_capture)
+        self.decode_btn.setEnabled(False)
+        row3.addWidget(self.decode_btn)
+
+        row3.addStretch()
+        toolbar_layout.addLayout(row3)
         
         layout.addWidget(toolbar_container)
         
@@ -200,12 +268,26 @@ class MainWindow(QMainWindow):
         self.update_status_indicator("disconnected", "Disconnected")
         layout.addWidget(self.status_indicator)
         
-        # Main content area - Waveform View only
-        # No splitter needed anymore as we removed the protocol panel
+        self.content_splitter = QSplitter(Qt.Vertical)
+        self.content_splitter.setChildrenCollapsible(False)
+        self.content_splitter.setHandleWidth(8)
+
         self.waveform_view = WaveformView()
         self.waveform_view.auto_scroll_changed.connect(self.on_auto_scroll_changed)
         self.waveform_view.set_region_zoom_available(True)
-        layout.addWidget(self.waveform_view, 1) # 1 stretch factor to take remaining space
+        self.content_splitter.addWidget(self.waveform_view)
+
+        self.decode_table = QTableWidget(0, 5)
+        self.decode_table.setHorizontalHeaderLabels(
+            ["Time (us)", "Protocol", "Event", "Value", "Note"]
+        )
+        self.decode_table.setMinimumHeight(90)
+        self.content_splitter.addWidget(self.decode_table)
+        self.content_splitter.setStretchFactor(0, 5)
+        self.content_splitter.setStretchFactor(1, 1)
+        self.content_splitter.setSizes([680, 180])
+        layout.addWidget(self.content_splitter, 1)
+        self.on_decode_protocol_changed()
         
         # Status bar
         self.status_bar = QStatusBar()
@@ -242,6 +324,7 @@ class MainWindow(QMainWindow):
 
         self.current_capture = None
         self.full_capture = None
+        self.decode_table.setRowCount(0)
         self.capture_count = 0
         self.stream_dropped_frames = 0
         self.stream_corrupt_frames = 0
@@ -249,6 +332,7 @@ class MainWindow(QMainWindow):
         self.pause_btn.setChecked(False)
         self.pause_btn.setText("Pause")
         self.follow_btn.setChecked(True)
+        self.set_capture_mode("offline")
         self.waveform_view.reset_view()
         self.refresh_ports(selected_port)
 
@@ -256,6 +340,8 @@ class MainWindow(QMainWindow):
             self.update_status_indicator("connected", "Connected")
             self.status_bar.showMessage("Workspace refreshed")
         else:
+            self.capture_buffer_samples = DEFAULT_CAPTURE_BUFFER_SAMPLES
+            self.refresh_rate_window_labels()
             self.update_status_indicator("disconnected", "Disconnected")
             self.sample_rate_label.setText("Rate: --")
             self.status_bar.showMessage("Workspace refreshed; select a port")
@@ -272,6 +358,8 @@ class MainWindow(QMainWindow):
             self.connect_btn.setProperty("connected", False)
             self.connect_btn.setStyle(self.connect_btn.style())  # Refresh style
             self.capture_btn.setEnabled(False)
+            self.capture_buffer_samples = DEFAULT_CAPTURE_BUFFER_SAMPLES
+            self.refresh_rate_window_labels()
             self.update_status_indicator("disconnected", "Disconnected")
             self.status_bar.showMessage("Disconnected from device")
             self.sample_rate_label.setText("Rate: --")
@@ -279,6 +367,8 @@ class MainWindow(QMainWindow):
             self.pause_btn.setEnabled(False)
             self.follow_btn.setEnabled(False)
             self.trigger_checkbox.setEnabled(False)
+            self.offline_mode_btn.setEnabled(True)
+            self.realtime_mode_btn.setEnabled(True)
         else:
             # Connect
             port = self.port_combo.currentText()
@@ -292,15 +382,17 @@ class MainWindow(QMainWindow):
                     self.connect_btn.setText("Disconnect")
                     self.connect_btn.setProperty("connected", True)
                     self.connect_btn.setStyle(self.connect_btn.style())  # Refresh style
-                    self.capture_btn.setEnabled(True)
-                    self.live_btn.setEnabled(True)
-                    self.on_rate_changed(self.rate_combo.currentIndex())
-                    self.trigger_checkbox.setEnabled(True)
-                    self.on_trigger_changed(self.trigger_checkbox.isChecked())
                     info = self.device.device_info
+                    self.capture_buffer_samples = int(
+                        info.get("buffer_size") or DEFAULT_CAPTURE_BUFFER_SAMPLES
+                    )
+                    self.refresh_rate_window_labels()
+                    self.apply_mode_controls()
+                    self.on_rate_changed(self.rate_combo.currentIndex())
+                    self.on_trigger_changed(self.trigger_checkbox.isChecked())
                     self.update_status_indicator("connected", "Connected")
                     self.status_bar.showMessage(
-                        f"Connected to {info['device_name']} v{info['version']} on {port}"
+                        f"Connected to {info['device_name']} {info['version']} on {port}"
                     )
                 else:
                     self.update_status_indicator("error", "Connection Failed")
@@ -364,7 +456,11 @@ class MainWindow(QMainWindow):
                     self.current_capture = self.full_capture
 
                 # Update display
-                self.waveform_view.display_capture(self.current_capture, is_rolling_update=True)
+                self.waveform_view.display_capture(
+                    self.current_capture,
+                    is_rolling_update=True,
+                    visible_sample_limit=self.live_render_samples,
+                )
                 
                 rate = new_capture.get_sample_rate_mhz()
                 self.sample_rate_label.setText(f"Rate: {rate:.2f} MHz")
@@ -376,6 +472,7 @@ class MainWindow(QMainWindow):
                 # New capture (single shot)
                 self.current_capture = new_capture
                 self.capture_count += 1
+                self.decode_btn.setEnabled(True)
                 
                 # Display
                 self.waveform_view.display_capture(new_capture)
@@ -395,17 +492,32 @@ class MainWindow(QMainWindow):
         
         if not self.live_mode:
             self.capture_btn.setEnabled(True)
+            self.decode_btn.setEnabled(self.current_capture is not None)
 
     def read_live_stream(self):
-        """Drain continuous stream frames without stopping acquisition."""
+        """Realtime mode dung offline frame lap lai, khong doi firmware stream."""
         if not self.device or not self.live_mode:
             return
 
-        frames = self.device.read_stream_frames()
-        if not frames:
+        if self.realtime_busy:
             return
 
-        self.append_stream_frames(frames, update_display=True)
+        self.realtime_busy = True
+        try:
+            frame = self.device.capture()
+            if frame and frame.get('type') == 'capture':
+                self.append_stream_frames([frame], update_display=True)
+            elif frame and frame.get('type') == 'trigger_timeout':
+                self.status_bar.showMessage("Realtime waiting for trigger")
+            else:
+                self.update_status_indicator("error", "Realtime Failed")
+                self.status_bar.showMessage(
+                    f"Realtime capture failed: {self.device.last_error or 'unknown error'}"
+                )
+                self.live_btn.setChecked(False)
+                self.toggle_live_mode()
+        finally:
+            self.realtime_busy = False
 
     def append_stream_frames(self, frames, update_display):
         """Append validated stream frames to history without losing boundaries."""
@@ -433,6 +545,7 @@ class MainWindow(QMainWindow):
             self.full_capture.trim_start(overflow)
 
         self.current_capture = self.full_capture
+        self.decode_btn.setEnabled(True)
         if update_display:
             self.waveform_view.display_capture(
                 self.current_capture,
@@ -451,34 +564,30 @@ class MainWindow(QMainWindow):
             if self.stream_corrupt_frames else ""
         )
         self.status_bar.showMessage(
-            f"Live continuous: {self.current_capture.sample_count} samples"
+            f"Realtime: {self.current_capture.sample_count} samples"
             f"{dropped_text}{corrupt_text}"
         )
-        self.update_status_indicator("capturing", "Live Streaming")
+        self.update_status_indicator("capturing", "Realtime")
     
     def toggle_live_mode(self):
-        """Toggle live capture mode"""
+        """Toggle realtime repeated offline capture mode."""
         self.live_mode = self.live_btn.isChecked()
         
         if self.live_mode:
-            # Start live capture
-            self.capture_count = 0
-            self.current_capture = None  # Reset buffer
-            self.full_capture = None     # Reset full capture buffer
-            self.stream_dropped_frames = 0
-            self.stream_corrupt_frames = 0
-
-            if not self.device.start_stream():
-                self.live_mode = False
+            if not self.device:
                 self.live_btn.setChecked(False)
-                self.update_status_indicator("error", "Stream Start Failed")
-                self.status_bar.showMessage(
-                    f"Stream start failed: {self.device.last_error}"
-                )
+                self.live_mode = False
                 return
 
-            self.live_btn.setText("Stop Live")
-            # Style update for active state
+            self.capture_count = 0
+            self.current_capture = None
+            self.full_capture = None
+            self.stream_dropped_frames = 0
+            self.stream_corrupt_frames = 0
+            self.realtime_busy = False
+            self.device.set_trigger(False)
+
+            self.live_btn.setText("Stop Realtime")
             self.live_btn.setStyleSheet(f"background-color: {COLORS['error']}; border: 1px solid {COLORS['error']}; color: white;")
             self.capture_btn.setEnabled(False)
             self.pause_btn.setEnabled(True)
@@ -488,39 +597,38 @@ class MainWindow(QMainWindow):
             self.follow_btn.setChecked(True)
             self.trigger_checkbox.setEnabled(False)
             self.rate_combo.setEnabled(False)
+            self.offline_mode_btn.setEnabled(False)
+            self.realtime_mode_btn.setEnabled(False)
             self.waveform_view.set_region_zoom_available(False)
             self.waveform_view.set_history_navigation_enabled(False)
             self.waveform_view.begin_live_capture()
             
-            self.update_status_indicator("capturing", "Live Streaming")
+            self.update_status_indicator("capturing", "Realtime")
             self.status_bar.showMessage(
-                f"Continuous live started (refresh: {self.live_interval_ms}ms)"
+                f"Realtime started (refresh: {self.live_interval_ms}ms)"
             )
             
-            # Start timer
             self.live_timer.start(self.live_interval_ms)
+            self.read_live_stream()
         else:
-            # Stop live capture
             self.live_timer.stop()
-            if self.device:
-                pending_frames = self.device.stop_stream(drain=True)
-                self.append_stream_frames(pending_frames, update_display=False)
-            self.live_btn.setText("Start Live")
+            self.live_btn.setText("Start Realtime")
             self.live_btn.setStyleSheet("")
-            self.capture_btn.setEnabled(True)
             self.pause_btn.setEnabled(False)
             self.pause_btn.setChecked(False)
             self.follow_btn.setEnabled(False)
-            self.trigger_checkbox.setEnabled(True)
             self.rate_combo.setEnabled(True)
+            self.offline_mode_btn.setEnabled(True)
+            self.realtime_mode_btn.setEnabled(True)
             self.waveform_view.set_region_zoom_available(True)
             self.waveform_view.set_history_navigation_enabled(True)
 
             if self.current_capture:
                 self.waveform_view.display_capture(self.current_capture)
             
+            self.apply_mode_controls()
             self.update_status_indicator("connected", "Connected")
-            self.status_bar.showMessage(f"Live capture stopped")
+            self.status_bar.showMessage("Realtime stopped")
 
     def toggle_pause(self):
         """Pause/Resume live capture"""
@@ -528,8 +636,6 @@ class MainWindow(QMainWindow):
         
         if is_paused:
             self.live_timer.stop()
-            pending_frames = self.device.stop_stream(drain=True)
-            self.append_stream_frames(pending_frames, update_display=False)
             self.pause_btn.setText("Resume")
             self.update_status_indicator("warning", "Paused")
             self.waveform_view.set_region_zoom_available(True)
@@ -537,13 +643,9 @@ class MainWindow(QMainWindow):
             if self.current_capture:
                 self.waveform_view.display_capture(self.current_capture)
         else:
-            if not self.device.start_stream():
-                self.pause_btn.setChecked(True)
-                self.status_bar.showMessage("Failed to resume continuous stream")
-                return
             self.live_timer.start(self.live_interval_ms)
             self.pause_btn.setText("Pause")
-            self.update_status_indicator("capturing", "Live Capture")
+            self.update_status_indicator("capturing", "Realtime")
             self.waveform_view.set_region_zoom_available(False)
             self.waveform_view.set_history_navigation_enabled(False)
             self.waveform_view.begin_live_capture()
@@ -563,36 +665,129 @@ class MainWindow(QMainWindow):
         self.follow_btn.blockSignals(False)
     
     def update_live_interval(self, value):
-        """Update live capture interval"""
+        """Update realtime capture interval"""
         self.live_interval_ms = value
         self.interval_label.setText(f"{value}ms")
         
         # Update timer if running
         if self.live_mode:
             self.live_timer.setInterval(value)
-            self.status_bar.showMessage(f"Live interval: {value}ms")
+            self.status_bar.showMessage(f"Realtime interval: {value}ms")
+
+    def format_capture_window(self, sample_rate_hz):
+        window_ms = self.capture_buffer_samples * 1000.0 / sample_rate_hz
+        if window_ms >= 1000.0:
+            seconds = window_ms / 1000.0
+            return f"{seconds:.2f}s" if seconds < 2.0 else f"{seconds:.1f}s"
+        if window_ms >= 100.0:
+            return f"{window_ms:.1f}ms"
+        return f"{window_ms:.2f}ms" if window_ms < 10.0 else f"{window_ms:.1f}ms"
+
+    def rate_window_labels(self):
+        return [
+            f"{label} ({self.format_capture_window(rate)} window)"
+            for rate, label in RATE_OPTIONS
+        ]
+
+    def update_rate_tooltip(self):
+        self.rate_combo.setToolTip(
+            f"Sample rate (time window for {self.capture_buffer_samples} samples)"
+        )
+
+    def refresh_rate_window_labels(self):
+        current_rate = RATE_OPTIONS[self.rate_combo.currentIndex()][0]
+        self.rate_combo.blockSignals(True)
+        self.rate_combo.clear()
+        self.rate_combo.addItems(self.rate_window_labels())
+        for index, (rate, _label) in enumerate(RATE_OPTIONS):
+            if rate == current_rate:
+                self.rate_combo.setCurrentIndex(index)
+                break
+        self.rate_combo.blockSignals(False)
+        self.update_rate_tooltip()
+
+    def set_capture_mode(self, mode):
+        """Chon Offline hoac Realtime tren UI."""
+        if mode not in ("offline", "realtime"):
+            return
+        if self.live_mode and mode != self.capture_mode:
+            self.live_btn.setChecked(False)
+            self.toggle_live_mode()
+
+        self.capture_mode = mode
+        self.offline_mode_btn.blockSignals(True)
+        self.realtime_mode_btn.blockSignals(True)
+        self.offline_mode_btn.setChecked(mode == "offline")
+        self.realtime_mode_btn.setChecked(mode == "realtime")
+        self.offline_mode_btn.blockSignals(False)
+        self.realtime_mode_btn.blockSignals(False)
+        self.apply_mode_controls()
+
+    def apply_mode_controls(self):
+        connected = bool(self.device and self.device.serial)
+        offline = self.capture_mode == "offline"
+        self.capture_btn.setEnabled(connected and offline and not self.live_mode)
+        self.live_btn.setEnabled(connected and not offline and not self.live_mode)
+        self.trigger_checkbox.setEnabled(connected and offline and not self.live_mode)
+        self.decode_btn.setEnabled(self.current_capture is not None)
+        if not offline and self.device:
+            self.trigger_checkbox.setChecked(False)
+            self.device.set_trigger(False)
+        if connected:
+            text = "Offline mode" if offline else "Realtime mode"
+            self.status_bar.showMessage(text)
+
+    def on_decode_protocol_changed(self):
+        protocol = self.protocol_combo.currentText()
+        is_uart = protocol == "UART"
+        self.decode_ch_b_combo.setEnabled(not is_uart)
+        self.baud_combo.setEnabled(is_uart)
+        if is_uart:
+            self.decode_ch_a_combo.setToolTip("UART RX channel")
+            self.decode_ch_b_combo.setToolTip("Unused for UART")
+        else:
+            self.decode_ch_a_combo.setToolTip("I2C SCL channel")
+            self.decode_ch_b_combo.setToolTip("I2C SDA channel")
+
+    def decode_current_capture(self):
+        if not self.current_capture:
+            self.status_bar.showMessage("No capture to decode")
+            return
+
+        samples = self.current_capture.samples
+        sample_rate_hz = int(1_000_000_000 / self.current_capture.sample_period_ns)
+        protocol = self.protocol_combo.currentText()
+        ch_a = self.decode_ch_a_combo.currentIndex()
+        ch_b = self.decode_ch_b_combo.currentIndex()
+
+        if protocol == "UART":
+            baudrate = int(self.baud_combo.currentText())
+            events = decode_uart(samples, sample_rate_hz, ch_a, baudrate)
+        else:
+            events = decode_i2c(samples, sample_rate_hz, ch_a, ch_b)
+
+        self.decode_table.setRowCount(len(events))
+        for row, event in enumerate(events):
+            values = [
+                f"{event.time_us:.2f}",
+                event.protocol,
+                event.event,
+                event.value,
+                event.note,
+            ]
+            for col, value in enumerate(values):
+                self.decode_table.setItem(row, col, QTableWidgetItem(value))
+        self.decode_table.resizeColumnsToContents()
+        self.status_bar.showMessage(f"Decoded {len(events)} {protocol} events")
 
     def on_rate_changed(self, index):
         """Handle sample rate change"""
         if not self.device:
             return
-        
-        # Map index to firmware command (slowest to fastest)
-        rate_commands = {
-            0: ('E', "100 Hz"),
-            1: ('D', "1 kHz"),
-            2: ('B', "10 kHz"),
-            3: ('F', "50 kHz"),
-            4: ('A', "100 kHz"),
-            5: ('1', "1 MHz"),
-            6: ('2', "2 MHz"),
-            7: ('5', "5 MHz"),
-            8: ('6', "6 MHz"),
-        }
-        
-        if index in rate_commands:
-            cmd, rate_name = rate_commands[index]
-            success = self.device.set_sample_rate(cmd)
+
+        if 0 <= index < len(RATE_OPTIONS):
+            sample_rate_hz, rate_name = RATE_OPTIONS[index]
+            success = self.device.set_sample_rate(sample_rate_hz)
             if success:
                 self.status_bar.showMessage(f"Sample rate set to {rate_name}")
             else:

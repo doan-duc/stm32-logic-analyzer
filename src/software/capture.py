@@ -8,6 +8,7 @@ class Capture:
         """
         self.num_channels = num_channels
         self.sample_period_ns = sample_period_ns
+        self.samples = bytes(samples)
         self.sample_count = len(samples)
         
         # Unpack into per-channel arrays
@@ -40,6 +41,8 @@ class Capture:
         """Append new binary samples to the capture"""
         if not new_samples:
             return
+
+        self.samples += bytes(new_samples)
             
         new_channels = self._unpack_channels(new_samples)
         
@@ -67,6 +70,7 @@ class Capture:
         for ch in range(self.num_channels):
             self.channels[ch] = self.channels[ch][count:]
             
+        self.samples = self.samples[count:]
         self.time = self.time[count:]
         self.sample_count -= count
 
