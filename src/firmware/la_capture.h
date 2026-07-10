@@ -18,10 +18,16 @@ extern "C" {
 #define LA_ESTIMATED_CAPTURE_CYCLES_TIMER_ISR_SAFE 42UL
 #define LA_ESTIMATED_CAPTURE_CYCLES_TIMER_ISR_DIRECT 28UL
 
+#ifndef LA_ALWAYS_INLINE
+#define LA_ALWAYS_INLINE inline __attribute__((always_inline))
+#endif
+
 typedef enum {
   LA_CAPTURE_MODE_TIMER_ISR_SAFE = 0,
   LA_CAPTURE_MODE_TIMER_ISR_DIRECT = 1,
-  LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR_EXPERIMENTAL = 2,
+  LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR = 2,
+  LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR_EXPERIMENTAL =
+      LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR,
   LA_CAPTURE_MODE_EDGE_TIMESTAMP_EXTI = 3
 } la_capture_mode_t;
 
@@ -59,7 +65,8 @@ typedef enum {
   LA_ERROR_BAD_SAMPLE_COUNT,
   LA_ERROR_BAD_TRIGGER,
   LA_ERROR_BUFFER_TOO_SMALL,
-  LA_ERROR_FRAME_TOO_SMALL
+  LA_ERROR_FRAME_TOO_SMALL,
+  LA_ERROR_DMA
 } la_error_t;
 
 typedef struct {
@@ -128,12 +135,13 @@ la_error_t la_capture_arm(la_capture_context_t *ctx,
                           const la_config_t *config,
                           const la_trigger_t *trigger);
 void la_capture_isr_fastpath(la_capture_context_t *ctx);
-static inline bool la_capture_state_is_terminal_fast(la_capture_state_t state) {
+static LA_ALWAYS_INLINE bool
+la_capture_state_is_terminal_fast(la_capture_state_t state) {
   return state == LA_CAPTURE_COMPLETE || state == LA_CAPTURE_NO_TRIGGER ||
          state == LA_CAPTURE_OVERFLOW || state == LA_CAPTURE_ERROR;
 }
 
-static inline bool la_capture_trigger_matches_fast(
+static LA_ALWAYS_INLINE bool la_capture_trigger_matches_fast(
     const la_capture_context_t *ctx, uint8_t sample) {
   switch (ctx->trigger.type) {
   case LA_TRIGGER_IMMEDIATE:
@@ -163,7 +171,7 @@ static inline bool la_capture_trigger_matches_fast(
   }
 }
 
-static inline void la_capture_store_pretrigger_fast(la_capture_context_t *ctx,
+static LA_ALWAYS_INLINE void la_capture_store_pretrigger_fast(la_capture_context_t *ctx,
                                                    uint8_t sample) {
   const uint32_t pre = ctx->config.pretrigger_samples;
   if (pre == 0U) {
@@ -183,7 +191,7 @@ static inline void la_capture_store_pretrigger_fast(la_capture_context_t *ctx,
   }
 }
 
-static inline void la_capture_commit_trigger_sample_fast(
+static LA_ALWAYS_INLINE void la_capture_commit_trigger_sample_fast(
     la_capture_context_t *ctx, uint8_t trigger_sample) {
   const uint32_t pre_capacity = ctx->config.pretrigger_samples;
   const uint32_t pre_count = ctx->ring_count;
@@ -207,7 +215,7 @@ static inline void la_capture_commit_trigger_sample_fast(
   }
 }
 
-static inline void la_capture_store_posttrigger_fast(la_capture_context_t *ctx,
+static LA_ALWAYS_INLINE void la_capture_store_posttrigger_fast(la_capture_context_t *ctx,
                                                     uint8_t sample) {
   const uint32_t physical_index =
       ctx->config.pretrigger_samples + 1U + ctx->posttrigger_count;
@@ -229,7 +237,7 @@ static inline void la_capture_store_posttrigger_fast(la_capture_context_t *ctx,
   }
 }
 
-static inline void la_capture_isr_fastpath_sample(la_capture_context_t *ctx,
+static LA_ALWAYS_INLINE void la_capture_isr_fastpath_sample(la_capture_context_t *ctx,
                                                   uint8_t sample) {
   la_capture_state_t state = ctx->status.state;
   if (state == LA_CAPTURE_IDLE || la_capture_state_is_terminal_fast(state)) {

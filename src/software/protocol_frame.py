@@ -35,6 +35,21 @@ class LogicAnalyzerFrame:
     payload_checksum: int = 0
 
 
+@dataclass(frozen=True)
+class LogicAnalyzerFrameHeader:
+    sample_rate_hz: int
+    actual_sample_rate_hz: int
+    total_samples: int
+    trigger_index: int
+    flags: int
+    overflow_count: int
+    dropped_samples: int
+    channel_count: int
+    payload_format: int
+    header_checksum: int
+    payload_checksum: int
+
+
 def checksum32(data: bytes | bytearray | memoryview) -> int:
     checksum = 2166136261
     for value in data:
@@ -87,52 +102,57 @@ def encode_frame(
     return bytes(header) + payload
 
 
-def decode_frame(data: bytes | bytearray | memoryview) -> LogicAnalyzerFrame:
+def decode_frame_header(
+    data: bytes | bytearray | memoryview,
+    *,
+    max_samples: int | None = None,
+) -> LogicAnalyzerFrameHeader:
+    """Validate a wire header before its payload length is trusted."""
     blob = bytes(data)
     if len(blob) < HEADER_LENGTH:
         raise FrameError("truncated header")
-    if blob[:4] != FRAME_MAGIC:
+    header = blob[:HEADER_LENGTH]
+    if header[:4] != FRAME_MAGIC:
         raise FrameError("wrong magic")
-    version = blob[4]
+    version = header[4]
     if version != FRAME_VERSION:
         raise FrameError(f"unsupported version {version}")
-    header_length = _u16(blob, 5)
+    header_length = _u16(header, 5)
     if header_length != HEADER_LENGTH:
         raise FrameError("wrong header length")
-    channel_count = blob[7]
+    channel_count = header[7]
     if channel_count != CHANNEL_COUNT:
         raise FrameError("wrong channel count")
-    sample_rate_hz = _u32(blob, 8)
+    sample_rate_hz = _u32(header, 8)
     if sample_rate_hz == 0:
         raise FrameError("sample_rate_hz is zero")
-    actual_sample_rate_hz = _u32(blob, 12)
+    actual_sample_rate_hz = _u32(header, 12)
     if actual_sample_rate_hz == 0:
         raise FrameError("actual_sample_rate_hz is zero")
-    total_samples = _u32(blob, 16)
-    trigger_index = _i32(blob, 20)
-    flags = _u32(blob, 24)
-    payload_format = blob[28]
+    total_samples = _u32(header, 16)
+    trigger_index = _i32(header, 20)
+    flags = _u32(header, 24)
+    payload_format = header[28]
     if payload_format != PAYLOAD_FORMAT_BITPACKED_U8:
         raise FrameError("unsupported payload format")
-    overflow_count = _u32(blob, 32)
-    dropped_samples = _u32(blob, 36)
-    expected_header_checksum = _u32(blob, HEADER_CHECKSUM_OFFSET)
-    expected_payload_checksum = _u32(blob, PAYLOAD_CHECKSUM_OFFSET)
-    if checksum32(blob[:HEADER_CHECKSUM_OFFSET]) != expected_header_checksum:
+    overflow_count = _u32(header, 32)
+    dropped_samples = _u32(header, 36)
+    expected_header_checksum = _u32(header, HEADER_CHECKSUM_OFFSET)
+    expected_payload_checksum = _u32(header, PAYLOAD_CHECKSUM_OFFSET)
+    if checksum32(header[:HEADER_CHECKSUM_OFFSET]) != expected_header_checksum:
         raise FrameError("header checksum mismatch")
-    expected_length = HEADER_LENGTH + total_samples
-    if len(blob) < expected_length:
-        raise FrameError("truncated payload")
-    if len(blob) > expected_length:
-        raise FrameError("payload length mismatch")
-    payload = blob[HEADER_LENGTH:expected_length]
-    if checksum32(payload) != expected_payload_checksum:
-        raise FrameError("payload checksum mismatch")
-    return LogicAnalyzerFrame(
+    if max_samples is not None:
+        if max_samples < 0:
+            raise ValueError("max_samples must be >= 0")
+        if total_samples > max_samples:
+            raise FrameError(
+                f"sample count exceeds safe limit ({total_samples} > {max_samples})"
+            )
+    return LogicAnalyzerFrameHeader(
         sample_rate_hz=sample_rate_hz,
-        samples=payload,
-        trigger_index=trigger_index,
         actual_sample_rate_hz=actual_sample_rate_hz,
+        total_samples=total_samples,
+        trigger_index=trigger_index,
         flags=flags,
         overflow_count=overflow_count,
         dropped_samples=dropped_samples,
@@ -140,4 +160,31 @@ def decode_frame(data: bytes | bytearray | memoryview) -> LogicAnalyzerFrame:
         payload_format=payload_format,
         header_checksum=expected_header_checksum,
         payload_checksum=expected_payload_checksum,
+    )
+
+
+def decode_frame(data: bytes | bytearray | memoryview) -> LogicAnalyzerFrame:
+    blob = bytes(data)
+    header = decode_frame_header(blob)
+    total_samples = header.total_samples
+    expected_length = HEADER_LENGTH + total_samples
+    if len(blob) < expected_length:
+        raise FrameError("truncated payload")
+    if len(blob) > expected_length:
+        raise FrameError("payload length mismatch")
+    payload = blob[HEADER_LENGTH:expected_length]
+    if checksum32(payload) != header.payload_checksum:
+        raise FrameError("payload checksum mismatch")
+    return LogicAnalyzerFrame(
+        sample_rate_hz=header.sample_rate_hz,
+        samples=payload,
+        trigger_index=header.trigger_index,
+        actual_sample_rate_hz=header.actual_sample_rate_hz,
+        flags=header.flags,
+        overflow_count=header.overflow_count,
+        dropped_samples=header.dropped_samples,
+        channel_count=header.channel_count,
+        payload_format=header.payload_format,
+        header_checksum=header.header_checksum,
+        payload_checksum=header.payload_checksum,
     )

@@ -34,7 +34,8 @@ def decode_uart(samples: bytes, sample_rate_hz: int, rx_channel: int, baudrate: 
         )
 
     i = 0
-    frame_span = int(samples_per_bit * 10.5)
+    # The last sample used below is the stop-bit midpoint at 9.5 bit periods.
+    frame_span = round(samples_per_bit * 9.5)
     idle_span = max(1, int(samples_per_bit * 2.0))
     while i + frame_span < len(samples):
         cur_bit = _bit(samples[i], rx_channel)
@@ -124,14 +125,20 @@ def decode_i2c(samples: bytes, sample_rate_hz: int, scl_channel: int, sda_channe
         prev_sda = _bit(samples[i - 1], sda_channel)
         cur_sda = _bit(samples[i], sda_channel)
 
-        if prev_sda == 1 and cur_sda == 0 and cur_scl == 1:
+        if prev_scl == 1 and cur_scl == 1 and prev_sda == 1 and cur_sda == 0:
             in_frame = True
             bits = []
             byte_index = 0
             events.append(DecodedEvent(time_us(i), "I2C", "START", "", ""))
             continue
 
-        if prev_sda == 0 and cur_sda == 1 and cur_scl == 1:
+        if (
+            in_frame
+            and prev_scl == 1
+            and cur_scl == 1
+            and prev_sda == 0
+            and cur_sda == 1
+        ):
             events.append(DecodedEvent(time_us(i), "I2C", "STOP", "", ""))
             in_frame = False
             bits = []
@@ -170,5 +177,115 @@ def decode_i2c(samples: bytes, sample_rate_hz: int, scl_channel: int, sda_channe
                     )
                 byte_index += 1
                 bits = []
+
+    return events
+
+
+def decode_spi(
+    samples: bytes,
+    sample_rate_hz: int,
+    sck_channel: int,
+    mosi_channel: int,
+    miso_channel: int,
+    cs_channel: int = -1,
+):
+    events = []
+    if sample_rate_hz <= 0 or not samples:
+        return events
+
+    def time_us(index):
+        return index * 1_000_000.0 / sample_rate_hz
+
+    uses_cs = 0 <= cs_channel < 8
+    in_frame = False
+    bits_mosi = []
+    bits_miso = []
+    byte_index = 0
+
+    for i in range(1, len(samples)):
+        prev_sck = _bit(samples[i - 1], sck_channel)
+        cur_sck = _bit(samples[i], sck_channel)
+        prev_cs = _bit(samples[i - 1], cs_channel) if uses_cs else 0
+        cur_cs = _bit(samples[i], cs_channel) if uses_cs else 0
+
+        if not in_frame and (not uses_cs or (prev_cs == 1 and cur_cs == 0)):
+            if uses_cs:
+                in_frame = True
+                bits_mosi = []
+                bits_miso = []
+                byte_index = 0
+                events.append(
+                    DecodedEvent(
+                        time_us(i),
+                        "SPI",
+                        "CS",
+                        "LOW",
+                        "frame start",
+                    )
+                )
+            elif prev_sck == 0 and cur_sck == 1:
+                in_frame = True
+                bits_mosi = []
+                bits_miso = []
+                byte_index = 0
+                events.append(
+                    DecodedEvent(
+                        time_us(i),
+                        "SPI",
+                        "FRAME",
+                        "START",
+                        "no CS",
+                    )
+                )
+
+        if not in_frame:
+            continue
+
+        if uses_cs and prev_cs == 0 and cur_cs == 1:
+            if bits_mosi or bits_miso:
+                events.append(
+                    DecodedEvent(
+                        time_us(i),
+                        "SPI",
+                        "WARN",
+                        "INCOMPLETE",
+                        "frame ended early",
+                    )
+                )
+            events.append(
+                DecodedEvent(
+                    time_us(i),
+                    "SPI",
+                    "CS",
+                    "HIGH",
+                    "frame end",
+                )
+            )
+            in_frame = False
+            bits_mosi = []
+            bits_miso = []
+            continue
+
+        if prev_sck == 0 and cur_sck == 1:
+            bits_mosi.append(_bit(samples[i], mosi_channel))
+            bits_miso.append(_bit(samples[i], miso_channel))
+            if len(bits_mosi) == 8:
+                mosi_value = 0
+                miso_value = 0
+                for bit in range(8):
+                    mosi_value = (mosi_value << 1) | bits_mosi[bit]
+                    miso_value = (miso_value << 1) | bits_miso[bit]
+                events.append(
+                    DecodedEvent(
+                        time_us(i),
+                        "SPI",
+                        "BYTE",
+                        f"MOSI=0x{mosi_value:02X} MISO=0x{miso_value:02X}",
+                        f"byte {byte_index}",
+                    )
+                )
+                bits_mosi = []
+                bits_miso = []
+                byte_index += 1
 
     return events

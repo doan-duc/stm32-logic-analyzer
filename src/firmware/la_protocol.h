@@ -15,7 +15,7 @@ extern "C" {
 #define LA_FRAME_FLAG_NO_TRIGGER 0x00000002UL
 #define LA_FRAME_FLAG_ERROR 0x00000004UL
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint8_t magic[4];
   uint8_t version;
   uint16_t header_length;
@@ -33,6 +33,14 @@ typedef struct {
   uint32_t payload_checksum;
 } la_frame_header_t;
 
+#if defined(__cplusplus)
+static_assert(sizeof(la_frame_header_t) == LA_FRAME_HEADER_LENGTH,
+              "SLA8 wire header layout must remain 48 bytes");
+#else
+_Static_assert(sizeof(la_frame_header_t) == LA_FRAME_HEADER_LENGTH,
+               "SLA8 wire header layout must remain 48 bytes");
+#endif
+
 typedef struct {
   uint32_t encoded_length;
   uint32_t header_checksum;
@@ -40,6 +48,7 @@ typedef struct {
 } la_frame_result_t;
 
 uint32_t la_checksum32(const uint8_t *data, uint32_t length);
+bool la_parse_u32(const char *text, uint32_t *value_out);
 la_error_t la_build_frame_header(const la_capture_context_t *ctx,
                                  uint8_t *header_out,
                                  uint32_t header_capacity,

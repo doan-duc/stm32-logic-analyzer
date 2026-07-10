@@ -1,5 +1,43 @@
 #include "la_protocol.h"
 
+bool la_parse_u32(const char *text, uint32_t *value_out) {
+  if (text == 0 || value_out == 0 || text[0] == '\0') {
+    return false;
+  }
+
+  uint32_t base = 10U;
+  uint32_t index = 0U;
+  if (text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
+    base = 16U;
+    index = 2U;
+    if (text[index] == '\0') {
+      return false;
+    }
+  }
+
+  uint32_t value = 0U;
+  for (; text[index] != '\0'; index++) {
+    const char character = text[index];
+    uint32_t digit;
+    if (character >= '0' && character <= '9') {
+      digit = (uint32_t)(character - '0');
+    } else if (character >= 'a' && character <= 'f') {
+      digit = 10U + (uint32_t)(character - 'a');
+    } else if (character >= 'A' && character <= 'F') {
+      digit = 10U + (uint32_t)(character - 'A');
+    } else {
+      return false;
+    }
+    if (digit >= base || value > (UINT32_MAX - digit) / base) {
+      return false;
+    }
+    value = value * base + digit;
+  }
+
+  *value_out = value;
+  return true;
+}
+
 static void la_write_u16_le(uint8_t *out, uint16_t value) {
   out[0] = (uint8_t)(value & 0xFFU);
   out[1] = (uint8_t)((value >> 8) & 0xFFU);

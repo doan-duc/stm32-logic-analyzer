@@ -1,0 +1,623 @@
+{
+  "created_utc": "2026-07-10T00:50:01.759571+00:00",
+  "la_port": "COM12",
+  "generator_port": "COM18",
+  "firmware": "SLA8-FW-V2-RATE-BENCH",
+  "firmware_max_rate_hz": 32000000,
+  "timer_clock_hz": 64000000,
+  "gray_rate_hz": 100000,
+  "required_repeats": 10,
+  "rates_hz": [
+    4000000,
+    4266667,
+    4571429,
+    4923077,
+    5333333,
+    5818182,
+    6400000,
+    7111111
+  ],
+  "best_stable_requested_rate_hz": 5818182,
+  "results": [
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4000000,
+      "actual_rate_hz": 4000000,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4266667,
+      "actual_rate_hz": 4266666,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4571429,
+      "actual_rate_hz": 4571428,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 4923077,
+      "actual_rate_hz": 4923076,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5333333,
+      "actual_rate_hz": 5333333,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 1,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 2,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 3,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 4,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 5,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 6,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 7,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 8,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 9,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 5818182,
+      "actual_rate_hz": 5818181,
+      "repeat": 10,
+      "passed": true,
+      "failures": []
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 1,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6230180.2 Hz (2.65%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 2,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6228506.8 Hz (2.68%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 3,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6228378.4 Hz (2.68%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 4,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6230316.7 Hz (2.65%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 5,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6227927.9 Hz (2.69%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 6,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6232432.4 Hz (2.62%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 7,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6231674.2 Hz (2.63%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 8,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6231674.2 Hz (2.63%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 9,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6232126.7 Hz (2.62%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 6400000,
+      "actual_rate_hz": 6400000,
+      "repeat": 10,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 6400000 Hz, measured 6232579.2 Hz (2.62%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 1,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6215837.1 Hz (12.59%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 2,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6210810.8 Hz (12.66%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 3,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6213513.5 Hz (12.62%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 4,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6213063.1 Hz (12.63%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 5,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6213964.0 Hz (12.62%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 6,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6214932.1 Hz (12.60%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 7,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6214414.4 Hz (12.61%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 8,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6216216.2 Hz (12.58%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 9,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6214932.1 Hz (12.60%)"
+      ]
+    },
+    {
+      "requested_rate_hz": 7111111,
+      "actual_rate_hz": 7111111,
+      "repeat": 10,
+      "passed": false,
+      "failures": [
+        "sample-rate mismatch: metadata 7111111 Hz, measured 6214414.4 Hz (12.61%)"
+      ]
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from device import LogicAnalyzerDevice
 from capture import Capture
-from decoders import decode_i2c, decode_uart
+from decoders import decode_i2c, decode_spi, decode_uart
 
 DEFAULT_CAPTURE_BUFFER_SAMPLES = 8192
 RATE_OPTIONS = [
@@ -21,6 +21,9 @@ RATE_OPTIONS = [
     (100_000, "100 kHz"),
     (500_000, "500 kHz"),
     (1_000_000, "1 MHz"),
+    (2_000_000, "2 MHz"),
+    (4_000_000, "4 MHz"),
+    (5_818_182, "5.82 MHz"),
 ]
 
 
@@ -228,21 +231,37 @@ class MainWindow(QMainWindow):
 
         row3.addWidget(QLabel("Protocol:"))
         self.protocol_combo = QComboBox()
-        self.protocol_combo.addItems(["UART", "I2C"])
+        self.protocol_combo.addItems(["UART", "I2C", "SPI"])
         self.protocol_combo.currentIndexChanged.connect(self.on_decode_protocol_changed)
         row3.addWidget(self.protocol_combo)
 
-        row3.addWidget(QLabel("RX/SCL:"))
+        self.decode_ch_a_label = QLabel("RX/SCL:")
         self.decode_ch_a_combo = QComboBox()
         self.decode_ch_a_combo.addItems([f"CH{i}" for i in range(8)])
         self.decode_ch_a_combo.setCurrentIndex(0)
+        row3.addWidget(self.decode_ch_a_label)
         row3.addWidget(self.decode_ch_a_combo)
 
-        row3.addWidget(QLabel("SDA:"))
+        self.decode_ch_b_label = QLabel("SDA:")
         self.decode_ch_b_combo = QComboBox()
         self.decode_ch_b_combo.addItems([f"CH{i}" for i in range(8)])
         self.decode_ch_b_combo.setCurrentIndex(2)
+        row3.addWidget(self.decode_ch_b_label)
         row3.addWidget(self.decode_ch_b_combo)
+
+        self.decode_ch_c_label = QLabel("MISO:")
+        self.decode_ch_c_combo = QComboBox()
+        self.decode_ch_c_combo.addItems([f"CH{i}" for i in range(8)])
+        self.decode_ch_c_combo.setCurrentIndex(2)
+        row3.addWidget(self.decode_ch_c_label)
+        row3.addWidget(self.decode_ch_c_combo)
+
+        self.decode_ch_d_label = QLabel("CS:")
+        self.decode_ch_d_combo = QComboBox()
+        self.decode_ch_d_combo.addItems([f"CH{i}" for i in range(8)])
+        self.decode_ch_d_combo.setCurrentIndex(3)
+        row3.addWidget(self.decode_ch_d_label)
+        row3.addWidget(self.decode_ch_d_combo)
 
         row3.addWidget(QLabel("Baud:"))
         self.baud_combo = QComboBox()
@@ -300,22 +319,32 @@ class MainWindow(QMainWindow):
         self.status_indicator.setText(html)
     
     def refresh_ports(self, preferred_port=None):
-        selected_port = preferred_port or self.port_combo.currentText()
+        selected_port = (
+            preferred_port
+            or self.port_combo.currentData()
+            or self.port_combo.currentText()
+        )
         self.port_combo.clear()
-        ports = LogicAnalyzerDevice.list_ports()
+        ports = LogicAnalyzerDevice.list_port_details()
         if ports:
-            self.port_combo.addItems(ports)
-            if selected_port in ports:
-                self.port_combo.setCurrentText(selected_port)
+            for port in ports:
+                usb_id = ""
+                if port["vid"] is not None and port["pid"] is not None:
+                    usb_id = f" [{port['vid']:04X}:{port['pid']:04X}]"
+                label = f"{port['device']} — {port['description']}{usb_id}"
+                self.port_combo.addItem(label, port["device"])
+            selected_index = self.port_combo.findData(selected_port)
+            if selected_index >= 0:
+                self.port_combo.setCurrentIndex(selected_index)
         else:
-            self.port_combo.addItem("No ports found")
+            self.port_combo.addItem("No ports found", None)
 
     def refresh_workspace(self):
         """Return the capture workspace to a clean initial state."""
         selected_port = (
             self.device.port
             if self.device and self.device.serial
-            else self.port_combo.currentText()
+            else (self.port_combo.currentData() or self.port_combo.currentText())
         )
 
         if self.live_mode:
@@ -371,8 +400,8 @@ class MainWindow(QMainWindow):
             self.realtime_mode_btn.setEnabled(True)
         else:
             # Connect
-            port = self.port_combo.currentText()
-            if port == "No ports found":
+            port = self.port_combo.currentData()
+            if not port:
                 self.status_bar.showMessage("No serial ports available")
                 return
             
@@ -740,14 +769,54 @@ class MainWindow(QMainWindow):
     def on_decode_protocol_changed(self):
         protocol = self.protocol_combo.currentText()
         is_uart = protocol == "UART"
+        is_i2c = protocol == "I2C"
+        is_spi = protocol == "SPI"
         self.decode_ch_b_combo.setEnabled(not is_uart)
+        self.decode_ch_c_combo.setEnabled(is_spi)
+        self.decode_ch_d_combo.setEnabled(is_spi)
         self.baud_combo.setEnabled(is_uart)
         if is_uart:
+            self.decode_ch_a_combo.setCurrentIndex(0)
+            self.decode_ch_a_label.setText("RX:")
             self.decode_ch_a_combo.setToolTip("UART RX channel")
+            self.decode_ch_b_label.setText("Unused:")
             self.decode_ch_b_combo.setToolTip("Unused for UART")
+            self.decode_ch_c_label.setText("Unused:")
+            self.decode_ch_c_combo.setToolTip("Unused for UART")
+            self.decode_ch_d_label.setText("Unused:")
+            self.decode_ch_d_combo.setToolTip("Unused for UART")
+            self.decode_ch_c_combo.setEnabled(False)
+            self.decode_ch_d_combo.setEnabled(False)
         else:
-            self.decode_ch_a_combo.setToolTip("I2C SCL channel")
-            self.decode_ch_b_combo.setToolTip("I2C SDA channel")
+            self.decode_ch_b_combo.setEnabled(is_i2c or is_spi)
+            if is_i2c:
+                self.decode_ch_a_combo.setCurrentIndex(1)
+                self.decode_ch_b_combo.setCurrentIndex(2)
+                self.decode_ch_a_label.setText("SCL:")
+                self.decode_ch_a_combo.setToolTip("I2C SCL channel")
+                self.decode_ch_b_label.setText("SDA:")
+                self.decode_ch_b_combo.setToolTip("I2C SDA channel")
+                self.decode_ch_c_combo.setCurrentIndex(0)
+                self.decode_ch_c_combo.setEnabled(False)
+                self.decode_ch_c_label.setText("Unused:")
+                self.decode_ch_c_combo.setToolTip("Unused for I2C")
+                self.decode_ch_d_combo.setCurrentIndex(0)
+                self.decode_ch_d_combo.setEnabled(False)
+                self.decode_ch_d_label.setText("Unused:")
+                self.decode_ch_d_combo.setToolTip("Unused for I2C")
+            else:  # SPI
+                self.decode_ch_a_combo.setCurrentIndex(3)
+                self.decode_ch_b_combo.setCurrentIndex(4)
+                self.decode_ch_c_combo.setCurrentIndex(5)
+                self.decode_ch_d_combo.setCurrentIndex(6)
+                self.decode_ch_a_label.setText("SCK:")
+                self.decode_ch_a_combo.setToolTip("SPI SCK channel")
+                self.decode_ch_b_label.setText("MOSI:")
+                self.decode_ch_b_combo.setToolTip("SPI MOSI channel")
+                self.decode_ch_c_label.setText("MISO:")
+                self.decode_ch_c_combo.setToolTip("SPI MISO channel")
+                self.decode_ch_d_label.setText("CS:")
+                self.decode_ch_d_combo.setToolTip("SPI CS channel")
 
     def decode_current_capture(self):
         if not self.current_capture:
@@ -763,8 +832,17 @@ class MainWindow(QMainWindow):
         if protocol == "UART":
             baudrate = int(self.baud_combo.currentText())
             events = decode_uart(samples, sample_rate_hz, ch_a, baudrate)
-        else:
+        elif protocol == "I2C":
             events = decode_i2c(samples, sample_rate_hz, ch_a, ch_b)
+        else:
+            events = decode_spi(
+                samples,
+                sample_rate_hz,
+                sck_channel=ch_a,
+                mosi_channel=ch_b,
+                miso_channel=self.decode_ch_c_combo.currentIndex(),
+                cs_channel=self.decode_ch_d_combo.currentIndex(),
+            )
 
         self.decode_table.setRowCount(len(events))
         for row, event in enumerate(events):
@@ -804,6 +882,9 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage(f"Trigger set to {state}")
         else:
             self.status_bar.showMessage("Failed to configure trigger")
+            self.trigger_checkbox.blockSignals(True)
+            self.trigger_checkbox.setChecked(not enabled)
+            self.trigger_checkbox.blockSignals(False)
 
     def closeEvent(self, event):
         """Stop acquisition before releasing the serial port."""
