@@ -21,7 +21,7 @@ def uart_frame(value: int, samples_per_bit: int = 10) -> bytes:
 def spi_frame(
     mosi: int,
     miso: int,
-    samples_per_half: int = 1,
+    samples_per_half: int = 3,
     *,
     sck_channel: int = 0,
     mosi_channel: int = 1,
@@ -87,6 +87,27 @@ class SpiDecodeTests(unittest.TestCase):
         events = decode_spi(samples, 100_000, 0, 1, 2, 3)
         byte_events = [event for event in events if event.event == "BYTE"]
         self.assertEqual(byte_events[0].value, "MOSI=0x55 MISO=0xA5")
+
+    def test_rejects_undersampled_spi_instead_of_emitting_corrupt_byte(self):
+        samples = spi_frame(0x55, 0xA5, samples_per_half=1)
+
+        events = decode_spi(samples, 100_000, 0, 1, 2, 3)
+
+        byte_events = [event for event in events if event.event == "BYTE"]
+        warnings = [event for event in events if event.event == "WARN"]
+        self.assertEqual(byte_events, [])
+        self.assertEqual(warnings[0].value, "UNDERSAMPLED")
+
+    def test_discards_buffered_bytes_when_frame_ends_incomplete(self):
+        complete_byte = spi_frame(0x55, 0xA5, samples_per_half=3)
+        samples = complete_byte[:-1] + bytes([complete_byte[-2]] * 3) + bytes([0])
+
+        events = decode_spi(samples, 100_000, 0, 1, 2, 3)
+
+        byte_events = [event for event in events if event.event == "BYTE"]
+        warnings = [event for event in events if event.event == "WARN"]
+        self.assertEqual(byte_events, [])
+        self.assertEqual(warnings[-1].value, "INCOMPLETE")
 
 
 if __name__ == "__main__":
