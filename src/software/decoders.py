@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+SPI_MIN_SAMPLES_PER_CLOCK = 4
+
+
 @dataclass
 class DecodedEvent:
     time_us: float
@@ -200,7 +203,47 @@ def decode_spi(
     in_frame = False
     bits_mosi = []
     bits_miso = []
+    sampling_edges = []
+    pending_bytes = []
     byte_index = 0
+
+    def finish_frame(index: int, note: str = "frame end"):
+        nonlocal bits_mosi, bits_miso, sampling_edges, pending_bytes
+
+        shortest_cycle = min(
+            (right - left for left, right in zip(sampling_edges, sampling_edges[1:])),
+            default=None,
+        )
+        if shortest_cycle is not None and shortest_cycle < SPI_MIN_SAMPLES_PER_CLOCK:
+            events.append(
+                DecodedEvent(
+                    time_us(index),
+                    "SPI",
+                    "WARN",
+                    "UNDERSAMPLED",
+                    (
+                        f"shortest SCK cycle is {shortest_cycle} samples; "
+                        f"need at least {SPI_MIN_SAMPLES_PER_CLOCK}"
+                    ),
+                )
+            )
+        elif bits_mosi or bits_miso:
+            events.append(
+                DecodedEvent(
+                    time_us(index),
+                    "SPI",
+                    "WARN",
+                    "INCOMPLETE",
+                    f"frame ended with {len(bits_mosi)} trailing bits",
+                )
+            )
+        else:
+            events.extend(pending_bytes)
+
+        bits_mosi = []
+        bits_miso = []
+        sampling_edges = []
+        pending_bytes = []
 
     for i in range(1, len(samples)):
         prev_sck = _bit(samples[i - 1], sck_channel)
@@ -213,6 +256,8 @@ def decode_spi(
                 in_frame = True
                 bits_mosi = []
                 bits_miso = []
+                sampling_edges = []
+                pending_bytes = []
                 byte_index = 0
                 events.append(
                     DecodedEvent(
@@ -227,6 +272,8 @@ def decode_spi(
                 in_frame = True
                 bits_mosi = []
                 bits_miso = []
+                sampling_edges = []
+                pending_bytes = []
                 byte_index = 0
                 events.append(
                     DecodedEvent(
@@ -242,16 +289,7 @@ def decode_spi(
             continue
 
         if uses_cs and prev_cs == 0 and cur_cs == 1:
-            if bits_mosi or bits_miso:
-                events.append(
-                    DecodedEvent(
-                        time_us(i),
-                        "SPI",
-                        "WARN",
-                        "INCOMPLETE",
-                        "frame ended early",
-                    )
-                )
+            finish_frame(i)
             events.append(
                 DecodedEvent(
                     time_us(i),
@@ -262,11 +300,10 @@ def decode_spi(
                 )
             )
             in_frame = False
-            bits_mosi = []
-            bits_miso = []
             continue
 
         if prev_sck == 0 and cur_sck == 1:
+            sampling_edges.append(i)
             bits_mosi.append(_bit(samples[i], mosi_channel))
             bits_miso.append(_bit(samples[i], miso_channel))
             if len(bits_mosi) == 8:
@@ -275,17 +312,22 @@ def decode_spi(
                 for bit in range(8):
                     mosi_value = (mosi_value << 1) | bits_mosi[bit]
                     miso_value = (miso_value << 1) | bits_miso[bit]
-                events.append(
-                    DecodedEvent(
-                        time_us(i),
-                        "SPI",
-                        "BYTE",
-                        f"MOSI=0x{mosi_value:02X} MISO=0x{miso_value:02X}",
-                        f"byte {byte_index}",
-                    )
+                byte_event = DecodedEvent(
+                    time_us(i),
+                    "SPI",
+                    "BYTE",
+                    f"MOSI=0x{mosi_value:02X} MISO=0x{miso_value:02X}",
+                    f"byte {byte_index}",
                 )
+                if uses_cs:
+                    pending_bytes.append(byte_event)
+                else:
+                    events.append(byte_event)
                 bits_mosi = []
                 bits_miso = []
                 byte_index += 1
+
+    if uses_cs and in_frame and (bits_mosi or pending_bytes):
+        finish_frame(len(samples) - 1, "capture ended before CS HIGH")
 
     return events

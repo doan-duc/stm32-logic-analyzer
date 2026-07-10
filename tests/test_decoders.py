@@ -100,7 +100,8 @@ class SpiDecodeTests(unittest.TestCase):
 
     def test_discards_buffered_bytes_when_frame_ends_incomplete(self):
         complete_byte = spi_frame(0x55, 0xA5, samples_per_half=3)
-        samples = complete_byte[:-1] + bytes([complete_byte[-2]] * 3) + bytes([0])
+        # Add one trailing clock bit before deasserting CS.
+        samples = complete_byte[:-1] + bytes([0] * 3 + [1] * 3 + [0] * 3 + [8])
 
         events = decode_spi(samples, 100_000, 0, 1, 2, 3)
 
