@@ -1,7 +1,6 @@
 import pyqtgraph as pg
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QScrollBar
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
 import numpy as np
 import sys
 import os
@@ -17,6 +16,19 @@ except ImportError:
         '#706fd3', '#f78fb3', '#82ccdd', '#b33939'
     ]
     COLORS = {'bg_dark': '#181818', 'bg_tertiary': '#2d2d2d', 'text_primary': '#d4d4d4', 'accent_secondary': '#0098ff'}
+
+try:
+    from .edge_measurement import (
+        detect_all_edge_series,
+        format_edge_tooltip,
+        select_nearest_edge,
+    )
+except ImportError:
+    from gui.edge_measurement import (
+        detect_all_edge_series,
+        format_edge_tooltip,
+        select_nearest_edge,
+    )
 
 # Enable OpenGL for hardware acceleration
 pg.setConfigOptions(useOpenGL=True, enableExperimental=True, antialias=True)
@@ -35,6 +47,7 @@ class TimeZoomViewBox(pg.ViewBox):
 
 class WaveformView(QWidget):
     auto_scroll_changed = pyqtSignal(bool)
+    EDGE_HOVER_RADIUS_PX = 8
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -145,8 +158,8 @@ class WaveformView(QWidget):
         self.plot_widget.addItem(self.measure_line2)
         self.plot_widget.addItem(self.measure_text)
         
-        # Pre-calculated rising edges per channel
-        self.rising_edges = [np.array([]) for _ in range(self.num_channels)]
+        # Pre-calculated rising and falling edges per channel.
+        self.edge_cache = [[] for _ in range(self.num_channels)]
         
         # Connect signals
         self.plot_widget.scene().sigMouseClicked.connect(self.on_mouse_clicked)
@@ -194,37 +207,82 @@ class WaveformView(QWidget):
         self.set_auto_scroll(False)
 
     def on_mouse_moved(self, pos):
-        """Detect mouse hover between rising edges and display time diff"""
-        if not self.current_capture or not self.plot_widget.sceneBoundingRect().contains(pos):
+        """Snap the pointer to the closest digital edge on its channel."""
+        if not self.current_capture:
             self.hide_measurement()
             return
-            
-        mouse_point = self.plot_widget.plotItem.vb.mapSceneToView(pos)
-        x = mouse_point.x()
+
+        view_box = self.plot_widget.getViewBox()
+        scene_bounds = view_box.sceneBoundingRect()
+        if not scene_bounds.contains(pos) or scene_bounds.width() <= 0:
+            self.hide_measurement()
+            return
+
+        mouse_point = view_box.mapSceneToView(pos)
         y = mouse_point.y()
-        
-        # Determine channel based on Y coordinate (y_base + channel_height)
-        ch_index = int(self.num_channels - 1 - np.floor(y))
-        
-        if 0 <= ch_index < self.num_channels:
-            edges = self.rising_edges[ch_index]
-            
-            if len(edges) > 1:
-                # Find the index of the first edge greater than x
-                idx = np.searchsorted(edges, x)
-                
-                # Check if mouse is bounded between two valid edges
-                if 0 < idx < len(edges):
-                    t1 = edges[idx - 1]
-                    t2 = edges[idx]
-                    dt = t2 - t1
-                    
-                    # Position text slightly above the channel baseline
-                    y_base = (self.num_channels - 1 - ch_index) * 1.0
-                    self.show_measurement(t1, t2, dt, y_base + 0.8)
-                    return
-                    
-        self.hide_measurement()
+
+        channel = int(self.num_channels - 1 - np.floor(y))
+        view_start, view_end = view_box.viewRange()[0]
+        tolerance_ns = (
+            max(view_end - view_start, 0)
+            * 1_000_000_000
+            * self.EDGE_HOVER_RADIUS_PX
+            / scene_bounds.width()
+        )
+        self._update_edge_hover(
+            channel=channel,
+            time_ns=mouse_point.x() * 1_000_000_000,
+            tolerance_ns=tolerance_ns,
+        )
+
+    def _update_edge_hover(self, *, channel, time_ns, tolerance_ns):
+        """Update edge markers without relying on scene-coordinate mapping."""
+        if (
+            not self.current_capture
+            or not isinstance(channel, int)
+            or isinstance(channel, bool)
+            or not 0 <= channel < self.num_channels
+            or channel >= len(self.edge_cache)
+        ):
+            self.hide_measurement()
+            return None
+
+        try:
+            edge = select_nearest_edge(
+                self.edge_cache[channel],
+                time_ns=time_ns,
+                tolerance_ns=tolerance_ns,
+            )
+        except (TypeError, ValueError):
+            self.hide_measurement()
+            return None
+
+        if edge is None:
+            self.hide_measurement()
+            return None
+
+        edge_time = edge.timestamp_ns / 1_000_000_000
+        self.measure_line1.setPos(edge_time)
+        if edge.delta_ns is not None:
+            previous_time = (
+                edge.timestamp_ns - edge.delta_ns
+            ) / 1_000_000_000
+            self.measure_line2.setPos(previous_time)
+            self.measure_line2.show()
+        else:
+            self.measure_line2.hide()
+
+        self.measure_text.setHtml(
+            format_edge_tooltip(
+                edge,
+                pin_name=self.pin_mapping.get(channel, "?"),
+            )
+        )
+        y_base = self.num_channels - 1 - channel
+        self.measure_text.setPos(edge_time, y_base + 0.8)
+        self.measure_line1.show()
+        self.measure_text.show()
+        return edge
 
     def hide_measurement(self):
         """Hide the hover measurement UI"""
@@ -232,39 +290,6 @@ class WaveformView(QWidget):
         self.measure_line2.hide()
         self.measure_text.hide()
 
-    def show_measurement(self, t1, t2, dt, y_pos):
-        """Show and update measurement lines and text"""
-        self.measure_line1.setPos(t1)
-        self.measure_line2.setPos(t2)
-        
-        # Format time diff
-        if dt < 1e-6:
-            dt_str = f"{dt*1e9:.1f} ns"
-        elif dt < 1e-3:
-            dt_str = f"{dt*1e6:.1f} µs"
-        elif dt < 1:
-            dt_str = f"{dt*1e3:.1f} ms"
-        else:
-            dt_str = f"{dt:.3f} s"
-            
-        # Format frequency
-        freq = 1.0 / dt if dt > 0 else 0
-        if freq >= 1e6:
-            f_str = f"{freq/1e6:.2f} MHz"
-        elif freq >= 1e3:
-            f_str = f"{freq/1e3:.2f} kHz"
-        else:
-            f_str = f"{freq:.2f} Hz"
-            
-        html_text = f"<div style='text-align: center;'><span style='color: {COLORS.get('success', '#4ec9b0')};'><b>ΔT:</b> {dt_str}</span><br><span><b>f:</b> {f_str}</span></div>"
-        
-        self.measure_text.setHtml(html_text)
-        self.measure_text.setPos((t1 + t2) / 2, y_pos)
-        
-        self.measure_line1.show()
-        self.measure_line2.show()
-        self.measure_text.show()
-        
     def set_auto_scroll(self, enabled):
         """Enable/disable auto-scrolling"""
         if self.auto_scroll == enabled:
@@ -306,9 +331,7 @@ class WaveformView(QWidget):
         """Clear all waveform data and restore the initial viewport state."""
         self.current_capture = None
         self.live_view_width = None
-        self.rising_edges = [
-            np.array([], dtype=float) for _ in range(self.num_channels)
-        ]
+        self.edge_cache = [[] for _ in range(self.num_channels)]
         self.hide_measurement()
 
         self.plot_widget.clear()
@@ -453,12 +476,18 @@ class WaveformView(QWidget):
 
         render_time = capture.time[render_start:]
         
-        # Pre-calculate rising edges for fast hover measurement
-        # np.diff generates 1 when signal goes 0->1
-        for ch in range(self.num_channels):
-            data = capture.get_channel(ch)[render_start:]
-            edges_idx = np.where((data[:-1] == 0) & (data[1:] == 1))[0] + 1
-            self.rising_edges[ch] = render_time[edges_idx]
+        edge_start = max(render_start - 1, 0)
+        edge_samples = capture.samples[edge_start:]
+        sample_offset = int(round(
+            capture.time[edge_start]
+            * 1_000_000_000
+            / capture.sample_period_ns
+        ))
+        self.edge_cache = detect_all_edge_series(
+            edge_samples,
+            sample_period_ns=capture.sample_period_ns,
+            sample_offset=sample_offset,
+        )
         
         first_display = len(self.channel_plots) == 0
 
@@ -487,8 +516,6 @@ class WaveformView(QWidget):
         if should_scroll:
             self.plot_widget.plotItem.disableAutoRange(pg.ViewBox.XAxis)
 
-        current_time = capture.time[-1]
-        
         for ch in range(self.num_channels):
             channel_data = capture.get_channel(ch)[render_start:]
 
