@@ -1,4 +1,6 @@
-"""Compact digital-edge measurement helpers for the waveform GUI."""
+"""
+Các hàm và lớp phụ trợ đo đạc khoảng thời gian, chu kỳ và tần số của sườn tín hiệu logic (edge) trên giao diện GUI.
+"""
 
 from __future__ import annotations
 
@@ -13,12 +15,24 @@ from typing import Literal
 import numpy as np
 
 
+# Kiểu định dạng loại sườn: "rising" (sườn lên) hoặc "falling" (sườn xuống)
 EdgeKind = Literal["rising", "falling"]
 
 
 @dataclass(frozen=True, slots=True)
 class EdgeMeasurement:
-    """An immutable transition and the timing measurements available at it."""
+    """
+    Đối tượng immutable (không thể thay đổi sau khi tạo) lưu thông tin đo đạc sườn tín hiệu:
+    
+    - channel: Kênh đo logic (0-7).
+    - kind: Loại sườn ("rising" hoặc "falling").
+    - sample_index: Chỉ số mẫu tuyệt đối nơi xảy ra sườn.
+    - timestamp_ns: Mốc thời gian xảy ra sườn tín hiệu (nano giây).
+    - interval_label: Nhãn trạng thái trước sườn (ví dụ sườn lên -> nhãn LOW, sườn xuống -> nhãn HIGH).
+    - delta_ns: Độ rộng xung của trạng thái trước đó (nano giây).
+    - period_ns: Chu kỳ tín hiệu (khoảng cách tới sườn cùng loại trước đó) (nano giây).
+    - frequency_hz: Tần số tính toán được tương ứng (Hz).
+    """
 
     channel: int
     kind: EdgeKind
@@ -31,7 +45,12 @@ class EdgeMeasurement:
 
 
 class EdgeSeries(Sequence[EdgeMeasurement]):
-    """Compact transition arrays that materialize records only on access."""
+    """
+    Lớp lưu trữ loạt sườn tín hiệu tối ưu hóa bộ nhớ.
+    Thay vì tạo sẵn hàng ngàn đối tượng EdgeMeasurement trong RAM, lớp này chỉ lưu các mảng numpy 
+    chỉ số mẫu và trạng thái phân cực. Khi người dùng truy cập một sườn (ví dụ qua chỉ số index),
+    hàm sẽ tính toán và sinh ra (materialize) đối tượng EdgeMeasurement tương ứng tại thời điểm đó.
+    """
 
     __slots__ = ("_channel", "_polarities", "_sample_indices", "_sample_period_ns")
 
@@ -43,11 +62,13 @@ class EdgeSeries(Sequence[EdgeMeasurement]):
         sample_indices: np.ndarray,
         polarities: np.ndarray,
     ) -> None:
+        # Tạo bản sao mảng chỉ số và loại sườn để bảo vệ dữ liệu gốc
         indices = np.asarray(sample_indices, dtype=np.int64).copy()
         rising = np.asarray(polarities, dtype=np.bool_).copy()
         if indices.ndim != 1 or rising.ndim != 1 or len(indices) != len(rising):
             raise ValueError("transition arrays must be one-dimensional and equal length")
 
+        # Thiết lập thuộc tính chỉ đọc (read-only) cho mảng numpy để tránh sửa đổi ngoài ý muốn
         indices.setflags(write=False)
         rising.setflags(write=False)
         self._channel = channel
@@ -57,18 +78,19 @@ class EdgeSeries(Sequence[EdgeMeasurement]):
 
     @property
     def sample_indices(self) -> np.ndarray:
-        """Read-only absolute sample indices for every transition."""
+        """Mảng chỉ số mẫu của các sườn chuyển trạng thái (chỉ đọc)."""
         return self._sample_indices
 
     @property
     def polarities(self) -> np.ndarray:
-        """Read-only polarity flags; true means rising and false means falling."""
+        """Mảng trạng thái sườn: True nghĩa là sườn lên, False là sườn xuống (chỉ đọc)."""
         return self._polarities
 
     def __len__(self) -> int:
         return len(self._sample_indices)
 
     def __getitem__(self, index):
+        # Hỗ trợ lấy lát cắt (slice)
         if isinstance(index, slice):
             return tuple(self[position] for position in range(*index.indices(len(self))))
 
@@ -78,6 +100,7 @@ class EdgeSeries(Sequence[EdgeMeasurement]):
             position = integer_index(index)
         except TypeError:
             raise TypeError("edge indices must be integers or slices") from None
+            
         if position < 0:
             position += len(self)
         if not 0 <= position < len(self):
@@ -89,20 +112,26 @@ class EdgeSeries(Sequence[EdgeMeasurement]):
             yield self._materialize(position)
 
     def _timestamp_ns(self, position: int) -> Real:
+        """Tính mốc thời gian dạng nano giây của sườn tại vị trí position."""
         return int(self._sample_indices[position]) * self._sample_period_ns
 
     def _materialize(self, position: int) -> EdgeMeasurement:
+        """
+        Tính toán và sinh ra (instantiate) một đối tượng EdgeMeasurement tại vị trí chỉ định.
+        """
         rising = bool(self._polarities[position])
         kind: EdgeKind = "rising" if rising else "falling"
         sample_index = int(self._sample_indices[position])
         timestamp_ns = self._timestamp_ns(position)
 
+        # Tính độ rộng xung của trạng thái trước đó (nếu không phải phần tử đầu tiên)
         interval_label = None
         delta_ns = None
         if position > 0:
             interval_label = "LOW" if rising else "HIGH"
             delta_ns = timestamp_ns - self._timestamp_ns(position - 1)
 
+        # Tính toán chu kỳ và tần số (nếu có tối thiểu 2 sườn trước đó)
         period_ns = None
         frequency_hz = None
         if position > 1:
@@ -121,12 +150,19 @@ class EdgeSeries(Sequence[EdgeMeasurement]):
         )
 
     def nearest(self, *, time_ns: Real, tolerance_ns: Real) -> EdgeMeasurement | None:
-        """Binary-search the closest transition without materializing the rest."""
+        """
+        Tìm kiếm nhị phân (Binary Search) sườn tín hiệu gần nhất với mốc thời gian yêu cầu,
+        nhằm tránh khởi tạo toàn bộ mảng gây chậm hiệu năng GUI.
+        """
         if not len(self):
             return None
 
+        # Quy đổi thời gian sang chỉ số mẫu đo tương đối
         target_index = float(time_ns) / float(self._sample_period_ns)
+        # Sử dụng thuật toán tìm vị trí chèn nhị phân của numpy
         insertion = int(np.searchsorted(self._sample_indices, target_index, side="left"))
+        
+        # So sánh 2 phần tử lân cận (bên trái và bên phải vị trí tìm được) để tìm sườn gần nhất thực tế
         positions = (insertion - 1, insertion)
         nearest_position = None
         nearest_key = None
@@ -182,9 +218,14 @@ def _series_from_changes(
     sample_period_ns: Real,
     sample_offset: int,
 ) -> EdgeSeries:
+    """
+    Hàm dựng đối tượng EdgeSeries từ thông tin các điểm thay đổi mức logic.
+    """
     mask = 1 << channel
+    # Tìm các chỉ số mẫu đo có sự thay đổi bit trên kênh hiện tại
     local_indices = np.flatnonzero((changed & mask) != 0) + 1
     sample_indices = local_indices.astype(np.int64, copy=False) + sample_offset
+    # Xác định mức logic phân cực sau khi đổi trạng thái (True = 1, False = 0)
     polarities = (sample_values[local_indices] & mask) != 0
     return EdgeSeries(
         channel=channel,
@@ -201,10 +242,13 @@ def detect_edge_series(
     sample_period_ns: Real,
     sample_offset: int = 0,
 ) -> EdgeSeries:
-    """Detect one channel into compact transition arrays."""
+    """
+    Phát hiện và trích xuất chuỗi sườn tín hiệu (EdgeSeries) của một kênh đơn lẻ.
+    """
     _validate_channel(channel)
     _validate_detection(sample_period_ns, sample_offset)
     sample_values = _sample_array(samples)
+    # Phép toán XOR sai phân giúp xác định vị trí các điểm đổi trạng thái bit
     changed = np.bitwise_xor(sample_values[1:], sample_values[:-1])
     return _series_from_changes(
         sample_values,
@@ -221,7 +265,10 @@ def detect_all_edge_series(
     sample_period_ns: Real,
     sample_offset: int = 0,
 ) -> tuple[EdgeSeries, ...]:
-    """Build all eight channel caches from one adjacent-byte change array."""
+    """
+    Phát hiện và trích xuất sườn tín hiệu cho toàn bộ 8 kênh đo cùng lúc bằng cách
+    tính toán mảng thay đổi bit chung một lần để tăng tốc tối đa.
+    """
     _validate_detection(sample_period_ns, sample_offset)
     sample_values = _sample_array(samples)
     changed = np.bitwise_xor(sample_values[1:], sample_values[:-1])
@@ -244,7 +291,10 @@ def detect_edges(
     sample_period_ns: Real,
     sample_offset: int = 0,
 ) -> list[EdgeMeasurement]:
-    """Materialize all transitions for callers that need the legacy list API."""
+    """
+    Phát hiện và khởi tạo (materialize) toàn bộ danh sách EdgeMeasurement.
+    Dành cho các hàm gọi API cũ yêu cầu kiểu danh sách thông thường.
+    """
     return list(
         detect_edge_series(
             samples,
@@ -261,7 +311,9 @@ def select_nearest_edge(
     time_ns: Real,
     tolerance_ns: Real,
 ) -> EdgeMeasurement | None:
-    """Return the closest edge inside an inclusive time tolerance."""
+    """
+    Lựa chọn sườn tín hiệu gần nhất với mốc thời gian chỉ định nằm trong phạm vi sai số dung sai (tolerance_ns).
+    """
     _require_finite_number(time_ns, "time_ns")
     _require_finite_number(tolerance_ns, "tolerance_ns")
     if tolerance_ns < 0:
@@ -283,6 +335,7 @@ def select_nearest_edge(
 
 
 def _raw_nanoseconds(value: Real) -> str:
+    """Định dạng số hiển thị nano giây."""
     numeric = float(value)
     if numeric.is_integer():
         return f"{int(numeric):,} ns"
@@ -290,6 +343,7 @@ def _raw_nanoseconds(value: Real) -> str:
 
 
 def _adaptive_time(value_ns: Real) -> str:
+    """Tự động chuyển đổi đơn vị hiển thị thời gian (s, ms, us, ns) cho dễ đọc."""
     numeric = float(value_ns)
     magnitude = abs(numeric)
     if magnitude >= 1_000_000_000:
@@ -302,6 +356,7 @@ def _adaptive_time(value_ns: Real) -> str:
 
 
 def _adaptive_frequency(value_hz: float) -> str:
+    """Tự động chuyển đổi đơn vị hiển thị tần số (MHz, kHz, Hz) cho dễ đọc."""
     if value_hz >= 1_000_000:
         return f"{value_hz / 1_000_000:.3f} MHz"
     if value_hz >= 1_000:
@@ -310,7 +365,10 @@ def _adaptive_frequency(value_hz: float) -> str:
 
 
 def format_edge_tooltip(edge: EdgeMeasurement, *, pin_name: str) -> str:
-    """Build safe HTML for a selected edge and its available measurements."""
+    """
+    Xây dựng nội dung chú thích Tooltip định dạng HTML hiển thị khi người dùng di chuột qua sườn tín hiệu.
+    Hiển thị thông tin kênh, thời gian, chỉ số mẫu đo, chu kỳ và tần số đo đạc được.
+    """
     pin = escape(str(pin_name))
     edge_label = "Rising" if edge.kind == "rising" else "Falling"
     adaptive_timestamp = _adaptive_time(edge.timestamp_ns)

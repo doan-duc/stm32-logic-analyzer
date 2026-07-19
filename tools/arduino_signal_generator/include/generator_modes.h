@@ -30,7 +30,11 @@ static inline bool generator_mode_emits_spi(GeneratorMode mode) {
 }
 
 static inline bool generator_mode_emits_aux(GeneratorMode mode) {
-  return mode == MODE_BOTH;
+  // CH3..CH6 are owned by SPI in MODE_BOTH. The auxiliary Timer1 writer
+  // updates CH3..CH7 as a group, so enabling it here corrupts SCK/MOSI/MISO/CS.
+  // Keep the auxiliary timer disabled until it has dedicated, non-SPI pins.
+  (void)mode;
+  return false;
 }
 
 static inline uint8_t generator_aux_levels(uint8_t counter) {

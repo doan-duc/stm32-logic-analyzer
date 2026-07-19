@@ -13,7 +13,10 @@ from device import LogicAnalyzerDevice
 from capture import Capture
 from decoders import decode_i2c, decode_spi, decode_uart
 
+# Số lượng mẫu mặc định trong một lần capture offline
 DEFAULT_CAPTURE_BUFFER_SAMPLES = 8192
+
+# Các tùy chọn tần số lấy mẫu khả dụng
 RATE_OPTIONS = [
     (1_000, "1 kHz"),
     (10_000, "10 kHz"),
@@ -30,55 +33,62 @@ RATE_OPTIONS = [
 
 
 class MainWindow(QMainWindow):
+    """
+    Lớp giao diện chính của ứng dụng Logic Analyzer Pro.
+    Quản lý các nút bấm, danh sách chọn, hiển thị dạng sóng và bảng kết quả giải mã giao thức.
+    """
     def __init__(self):
         super().__init__()
-        self.device = None
-        self.current_capture = None
-        self.full_capture = None
-        self.live_mode = False
-        self.capture_mode = "offline"
-        self.realtime_busy = False
-        self.capture_count = 0
-        self.live_buffer_max_samples = 204800
-        self.live_render_samples = 8192
+        self.device = None                              # Trình điều khiển kết nối thiết bị
+        self.current_capture = None                     # Dữ liệu capture hiện tại đang hiển thị
+        self.full_capture = None                        # Dữ liệu capture tích lũy trong chế độ realtime
+        self.live_mode = False                          # Cờ trạng thái chế độ cập nhật liên tục (Realtime)
+        self.capture_mode = "offline"                   # Chế độ lấy mẫu ("offline" hoặc "realtime")
+        self.realtime_busy = False                      # Khóa tránh chạy trùng ngắt timer của chế độ realtime
+        self.capture_count = 0                          # Đếm số lần capture thành công
+        self.live_buffer_max_samples = 204800           # Số mẫu tối đa lưu giữ trong bộ đệm cuộn
+        self.live_render_samples = 8192                 # Số mẫu hiển thị trên khung nhìn lúc vẽ realtime
         self.capture_buffer_samples = DEFAULT_CAPTURE_BUFFER_SAMPLES
         self.stream_dropped_frames = 0
         self.stream_corrupt_frames = 0
         
-        # Live capture timer
+        # Timer cập nhật lặp lại chế độ realtime
         self.live_timer = QTimer()
         self.live_timer.timeout.connect(self.read_live_stream)
-        self.live_interval_ms = 33
+        self.live_interval_ms = 33                      # Khoảng thời gian làm mới mặc định là 33ms
         
-        # Professional Title
+        # Đặt tên và kích thước cửa sổ chính
         self.setWindowTitle("STM32 Logic Analyzer Pro")
         self.setGeometry(100, 100, 1400, 900)
         
-        # Apply modern stylesheet
+        # Áp dụng giao diện stylesheet tối hiện đại
         self.setStyleSheet(get_main_stylesheet())
         
         self.setup_ui()
     
     def setup_ui(self):
-        # Central widget
+        """
+        Khởi tạo và sắp xếp các thành phần giao diện đồ họa (UI).
+        """
+        # Widget trung tâm
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        # Toolbar container with background
+        # Thanh công cụ chứa các nhóm cấu hình
         toolbar_container = QWidget()
         toolbar_container.setObjectName("toolbar")
         toolbar_layout = QVBoxLayout(toolbar_container)
         toolbar_layout.setContentsMargins(16, 12, 16, 12)
         toolbar_layout.setSpacing(12)
         
-        # ROW 1: Connection and Capture Controls
+        # HÀNG 1: Điều khiển Kết nối và Capture
         row1 = QHBoxLayout()
         row1.setSpacing(16)
         
-        # Connection Section
+        # Nhóm kết nối cổng Serial
         conn_label = QLabel("CONNECTION")
         conn_label.setObjectName("sectionLabel")
         row1.addWidget(conn_label)
@@ -103,13 +113,13 @@ class MainWindow(QMainWindow):
         self.connect_btn.setProperty("connected", False)
         row1.addWidget(self.connect_btn)
         
-        # Separator
+        # Vạch ngăn cách
         sep1 = QFrame()
         sep1.setFrameShape(QFrame.VLine)
         sep1.setFrameShadow(QFrame.Sunken)
         row1.addWidget(sep1)
         
-        # Capture Section
+        # Nhóm cấu hình Capture
         cap_label = QLabel("CAPTURE")
         cap_label.setObjectName("sectionLabel")
         row1.addWidget(cap_label)
@@ -130,6 +140,7 @@ class MainWindow(QMainWindow):
         self.capture_btn.setEnabled(False)
         row1.addWidget(self.capture_btn)
 
+        # Hộp chọn kích hoạt Trigger chân PA0
         self.trigger_checkbox = QCheckBox("Trigger PA0 falling")
         self.trigger_checkbox.setChecked(False)
         self.trigger_checkbox.setToolTip(
@@ -141,14 +152,14 @@ class MainWindow(QMainWindow):
         
         row1.addStretch()
         
-        # Sample rate display
+        # Nhãn hiển thị tần số lấy mẫu hiện thời
         self.sample_rate_label = QLabel("Rate: --")
         self.sample_rate_label.setStyleSheet(f"color: {COLORS['accent_secondary']}; font-weight: bold;")
         row1.addWidget(self.sample_rate_label)
         
         toolbar_layout.addLayout(row1)
         
-        # ROW 2: Mode Controls
+        # HÀNG 2: Điều khiển chế độ chạy
         row2 = QHBoxLayout()
         row2.setSpacing(16)
         
@@ -224,6 +235,7 @@ class MainWindow(QMainWindow):
         
         toolbar_layout.addLayout(row2)
 
+        # HÀNG 3: Nhóm Giải mã Giao thức (Protocol Decode)
         row3 = QHBoxLayout()
         row3.setSpacing(16)
 
@@ -282,45 +294,51 @@ class MainWindow(QMainWindow):
         
         layout.addWidget(toolbar_container)
         
-        # Status Indicator below toolbar
+        # Nhãn biểu thị trạng thái với chấm tròn có màu (Status Indicator)
         self.status_indicator = QLabel()
         self.status_indicator.setTextFormat(Qt.RichText)
         self.status_indicator.setContentsMargins(16, 8, 16, 8)
         self.update_status_indicator("disconnected", "Disconnected")
         layout.addWidget(self.status_indicator)
         
+        # Bộ chia màn hình (Splitter) để căn chỉnh khung sóng và bảng giải mã
         self.content_splitter = QSplitter(Qt.Vertical)
         self.content_splitter.setChildrenCollapsible(False)
         self.content_splitter.setHandleWidth(8)
 
+        # 1. Khung hiển thị dạng sóng logic
         self.waveform_view = WaveformView()
         self.waveform_view.auto_scroll_changed.connect(self.on_auto_scroll_changed)
         self.waveform_view.set_region_zoom_available(True)
         self.content_splitter.addWidget(self.waveform_view)
 
+        # 2. Bảng hiển thị kết quả giải mã các giao thức nối tiếp
         self.decode_table = QTableWidget(0, 5)
         self.decode_table.setHorizontalHeaderLabels(
             ["Time (us)", "Protocol", "Event", "Value", "Note"]
         )
         self.decode_table.setMinimumHeight(90)
         self.content_splitter.addWidget(self.decode_table)
+        
         self.content_splitter.setStretchFactor(0, 5)
         self.content_splitter.setStretchFactor(1, 1)
         self.content_splitter.setSizes([680, 180])
         layout.addWidget(self.content_splitter, 1)
+        
         self.on_decode_protocol_changed()
         
-        # Status bar
+        # Thanh Status bar ở cuối cửa sổ
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready")
 
     def update_status_indicator(self, status, text):
-        """Update the status indicator with colored dot"""
+        """Cập nhật giao diện của chấm tròn trạng thái ở Toolbar."""
         html = get_status_indicator_html(status, text)
         self.status_indicator.setText(html)
     
     def refresh_ports(self, preferred_port=None):
+        """Quét và làm mới danh sách cổng COM."""
         selected_port = (
             preferred_port
             or self.port_combo.currentData()
@@ -342,7 +360,7 @@ class MainWindow(QMainWindow):
             self.port_combo.addItem("No ports found", None)
 
     def refresh_workspace(self):
-        """Return the capture workspace to a clean initial state."""
+        """Đặt lại toàn bộ ứng dụng về trạng thái ban đầu và quét lại cổng COM."""
         selected_port = (
             self.device.port
             if self.device and self.device.serial
@@ -378,8 +396,9 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Workspace refreshed; select a port")
     
     def toggle_connection(self):
+        """Bật/tắt kết nối cổng nối tiếp với thiết bị."""
         if self.device and self.device.serial:
-            # Disconnect
+            # Ngắt kết nối
             if self.live_mode:
                 self.live_btn.setChecked(False)
                 self.toggle_live_mode()
@@ -387,7 +406,7 @@ class MainWindow(QMainWindow):
             self.device = None
             self.connect_btn.setText("Connect")
             self.connect_btn.setProperty("connected", False)
-            self.connect_btn.setStyle(self.connect_btn.style())  # Refresh style
+            self.connect_btn.setStyle(self.connect_btn.style())
             self.capture_btn.setEnabled(False)
             self.capture_buffer_samples = DEFAULT_CAPTURE_BUFFER_SAMPLES
             self.refresh_rate_window_labels()
@@ -401,7 +420,7 @@ class MainWindow(QMainWindow):
             self.offline_mode_btn.setEnabled(True)
             self.realtime_mode_btn.setEnabled(True)
         else:
-            # Connect
+            # Kết nối
             port = self.port_combo.currentData()
             if not port:
                 self.status_bar.showMessage("No serial ports available")
@@ -412,7 +431,7 @@ class MainWindow(QMainWindow):
                 if self.device.connect():
                     self.connect_btn.setText("Disconnect")
                     self.connect_btn.setProperty("connected", True)
-                    self.connect_btn.setStyle(self.connect_btn.style())  # Refresh style
+                    self.connect_btn.setStyle(self.connect_btn.style())
                     info = self.device.device_info
                     self.capture_buffer_samples = int(
                         info.get("buffer_size") or DEFAULT_CAPTURE_BUFFER_SAMPLES
@@ -449,16 +468,15 @@ class MainWindow(QMainWindow):
                 self.device = None
     
     def do_capture(self):
+        """Thực hiện một lần capture (đơn lẻ)."""
         if not self.device:
             return
         
-        # Don't disable button in live mode
         if not self.live_mode:
             self.update_status_indicator("capturing", "Capturing...")
             self.status_bar.showMessage("Capturing data...")
             self.capture_btn.setEnabled(False)
         
-        # Capture (blocking for now)
         frame = self.device.capture()
         
         if frame and frame['type'] == 'trigger_timeout':
@@ -473,20 +491,16 @@ class MainWindow(QMainWindow):
             )
             
             if self.live_mode:
-                # Live Buffer Management
                 if self.full_capture is None:
-                    # First frame of live capture
                     self.full_capture = new_capture
                     self.current_capture = self.full_capture
                 else:
-                    # Append to existing buffer
                     self.full_capture.append_samples(frame['samples'])
                     overflow = self.full_capture.sample_count - self.live_buffer_max_samples
                     if overflow > 0:
                         self.full_capture.trim_start(overflow)
                     self.current_capture = self.full_capture
 
-                # Update display
                 self.waveform_view.display_capture(
                     self.current_capture,
                     is_rolling_update=True,
@@ -500,12 +514,10 @@ class MainWindow(QMainWindow):
                 )
                 self.update_status_indicator("capturing", "Live Capture")
             else:
-                # New capture (single shot)
                 self.current_capture = new_capture
                 self.capture_count += 1
                 self.decode_btn.setEnabled(True)
                 
-                # Display
                 self.waveform_view.display_capture(new_capture)
                 
                 rate = new_capture.get_sample_rate_mhz()
@@ -519,14 +531,14 @@ class MainWindow(QMainWindow):
             self.update_status_indicator("error", "Capture Failed")
             self.status_bar.showMessage("Capture failed")
             if self.live_mode:
-                self.toggle_live_mode()  # Stop live mode on error
+                self.toggle_live_mode()
         
         if not self.live_mode:
             self.capture_btn.setEnabled(True)
             self.decode_btn.setEnabled(self.current_capture is not None)
 
     def read_live_stream(self):
-        """Realtime mode dung offline frame lap lai, khong doi firmware stream."""
+        """Thực hiện capture lặp lại liên tục (chế độ Realtime)."""
         if not self.device or not self.live_mode:
             return
 
@@ -549,9 +561,9 @@ class MainWindow(QMainWindow):
                 self.toggle_live_mode()
         finally:
             self.realtime_busy = False
-
+ 
     def append_stream_frames(self, frames, update_display):
-        """Append validated stream frames to history without losing boundaries."""
+        """Nối thêm các khung dữ liệu realtime mới nhận được vào lịch sử hiển thị."""
         if not frames:
             return
 
@@ -601,7 +613,7 @@ class MainWindow(QMainWindow):
         self.update_status_indicator("capturing", "Realtime")
     
     def toggle_live_mode(self):
-        """Toggle realtime repeated offline capture mode."""
+        """Bật/tắt chế độ lấy mẫu lặp lại liên tục Realtime."""
         self.live_mode = self.live_btn.isChecked()
         
         if self.live_mode:
@@ -662,7 +674,7 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Realtime stopped")
 
     def toggle_pause(self):
-        """Pause/Resume live capture"""
+        """Tạm dừng/Tiếp tục cập nhật đồ thị dạng sóng trong chế độ Realtime."""
         is_paused = self.pause_btn.isChecked()
         
         if is_paused:
@@ -684,28 +696,28 @@ class MainWindow(QMainWindow):
                 self.waveform_view.set_auto_scroll(True)
 
     def toggle_follow_live(self, enabled):
-        """Pin/unpin the plot from the newest live samples."""
+        """Bật/tắt việc tự động cuộn màn hình hiển thị sóng theo mẫu mới nhất."""
         self.waveform_view.set_auto_scroll(enabled)
         if enabled:
             self.waveform_view.scroll_to_latest()
 
     def on_auto_scroll_changed(self, enabled):
-        """Keep the follow control in sync with plot interactions."""
+        """Giữ nút bấm Follow trên UI đồng bộ với các thao tác kéo/thả đồ thị của người dùng."""
         self.follow_btn.blockSignals(True)
         self.follow_btn.setChecked(enabled)
         self.follow_btn.blockSignals(False)
     
     def update_live_interval(self, value):
-        """Update realtime capture interval"""
+        """Cập nhật chu kỳ lấy mẫu/làm mới ở chế độ Realtime (ms)."""
         self.live_interval_ms = value
         self.interval_label.setText(f"{value}ms")
         
-        # Update timer if running
         if self.live_mode:
             self.live_timer.setInterval(value)
             self.status_bar.showMessage(f"Realtime interval: {value}ms")
 
     def format_capture_window(self, sample_rate_hz):
+        """Tính toán khoảng thời gian (cửa sổ đo) tương ứng với kích thước bộ đệm ở tần số chỉ định."""
         window_ms = self.capture_buffer_samples * 1000.0 / sample_rate_hz
         if window_ms >= 1000.0:
             seconds = window_ms / 1000.0
@@ -715,6 +727,7 @@ class MainWindow(QMainWindow):
         return f"{window_ms:.2f}ms" if window_ms < 10.0 else f"{window_ms:.1f}ms"
 
     def rate_window_labels(self):
+        """Trả về danh sách nhãn text hiển thị tần số kèm cửa sổ thời gian tương ứng."""
         return [
             f"{label} ({self.format_capture_window(rate)} window)"
             for rate, label in RATE_OPTIONS
@@ -726,6 +739,7 @@ class MainWindow(QMainWindow):
         )
 
     def refresh_rate_window_labels(self):
+        """Cập nhật lại nhãn của danh sách chọn tần số khi dung lượng buffer thay đổi."""
         current_rate = RATE_OPTIONS[self.rate_combo.currentIndex()][0]
         self.rate_combo.blockSignals(True)
         self.rate_combo.clear()
@@ -738,7 +752,7 @@ class MainWindow(QMainWindow):
         self.update_rate_tooltip()
 
     def set_capture_mode(self, mode):
-        """Chon Offline hoac Realtime tren UI."""
+        """Chọn chế độ đo Offline hoặc Realtime trên giao diện."""
         if mode not in ("offline", "realtime"):
             return
         if self.live_mode and mode != self.capture_mode:
@@ -755,6 +769,7 @@ class MainWindow(QMainWindow):
         self.apply_mode_controls()
 
     def apply_mode_controls(self):
+        """Cập nhật trạng thái cho phép/vô hiệu hóa các nút điều khiển dựa trên chế độ đo và kết nối."""
         connected = bool(self.device and self.device.serial)
         offline = self.capture_mode == "offline"
         self.capture_btn.setEnabled(connected and offline and not self.live_mode)
@@ -769,6 +784,7 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage(text)
 
     def on_decode_protocol_changed(self):
+        """Cập nhật giao diện bộ chọn kênh giải mã khi người dùng đổi loại giao thức."""
         protocol = self.protocol_combo.currentText()
         is_uart = protocol == "UART"
         is_i2c = protocol == "I2C"
@@ -821,6 +837,7 @@ class MainWindow(QMainWindow):
                 self.decode_ch_d_combo.setToolTip("SPI CS channel")
 
     def decode_current_capture(self):
+        """Giải mã dữ liệu sóng hiện hành và điền kết quả vào bảng QTableWidget."""
         if not self.current_capture:
             self.status_bar.showMessage("No capture to decode")
             return
@@ -861,7 +878,7 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage(f"Decoded {len(events)} {protocol} events")
 
     def on_rate_changed(self, index):
-        """Handle sample rate change"""
+        """Xử lý khi người dùng đổi tần số lấy mẫu trên ComboBox."""
         if not self.device:
             return
 
@@ -874,7 +891,7 @@ class MainWindow(QMainWindow):
                 self.status_bar.showMessage(f"Failed to set sample rate to {rate_name}")
 
     def on_trigger_changed(self, enabled):
-        """Configure capture to wait for the UART start edge on PA0."""
+        """Cấu hình trigger khi người dùng bật/tắt checkbox."""
         if not self.device:
             return
 
@@ -889,7 +906,7 @@ class MainWindow(QMainWindow):
             self.trigger_checkbox.blockSignals(False)
 
     def closeEvent(self, event):
-        """Stop acquisition before releasing the serial port."""
+        """Đảm bảo dừng đo và ngắt kết nối cổng nối tiếp trước khi tắt hẳn ứng dụng."""
         self.live_timer.stop()
         if self.device:
             self.device.disconnect()

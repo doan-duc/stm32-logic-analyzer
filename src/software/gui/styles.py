@@ -1,53 +1,57 @@
 """
-Modern professional dark theme stylesheet for Logic Analyzer GUI
+Bảng mã màu và mã CSS Stylesheet giao diện chuyên nghiệp cho Logic Analyzer GUI (PyQt).
+Lấy cảm hứng từ giao diện tối màu (Dark Theme) của VS Code / JetBrains.
 """
 
-# Color Palette - Professional Dark Theme (VS Code / JetBrains inspired)
+# Bảng mã màu chủ đạo của hệ thống
 COLORS = {
-    # Backgrounds
-    'bg_primary': '#1e1e1e',
-    'bg_secondary': '#252526',
-    'bg_tertiary': '#2d2d2d',
-    'bg_header': '#333333',
-    'bg_dark': '#181818',
+    # Nhóm màu nền (Backgrounds)
+    'bg_primary': '#1e1e1e',                     # Nền chính tối màu
+    'bg_secondary': '#252526',                   # Nền Toolbar và các panel phụ
+    'bg_tertiary': '#2d2d2d',                    # Nền các khung chọn/nhập liệu
+    'bg_header': '#333333',                      # Nền header bảng và nút bấm thường
+    'bg_dark': '#181818',                        # Nền siêu tối cho đồ thị sóng
 
-    # Accents
-    'accent_primary': '#007acc',
-    'accent_secondary': '#0098ff',
-    'accent_hover': '#005f9e',
+    # Nhóm màu nhấn mạnh (Accents)
+    'accent_primary': '#007acc',                 # Màu xanh dương thương hiệu (VS Code)
+    'accent_secondary': '#0098ff',               # Màu xanh dương sáng khi hover/active
+    'accent_hover': '#005f9e',                   # Màu xanh dương đậm khi nhấn giữ
 
-    # Status
-    'success': '#4ec9b0',
-    'warning': '#cca700',
-    'error': '#f14c4c',
-    'info': '#9cdcfe',
+    # Nhóm màu trạng thái (Status)
+    'success': '#4ec9b0',                        # Màu xanh ngọc (Đã kết nối / Thành công)
+    'warning': '#cca700',                        # Màu vàng hổ phách (Cảnh báo / Đang chờ)
+    'error': '#f14c4c',                          # Màu đỏ (Lỗi / Quá tải / Dừng)
+    'info': '#9cdcfe',                           # Màu xanh lam nhạt (Thông tin)
 
-    # Text
-    'text_primary': '#d4d4d4',
-    'text_secondary': '#858585',
-    'text_disabled': '#585858',
-    'text_bright': '#ffffff',
+    # Nhóm màu chữ (Text)
+    'text_primary': '#d4d4d4',                   # Chữ chính màu xám nhạt dễ chịu cho mắt
+    'text_secondary': '#858585',                 # Chữ phụ màu xám đậm hơn
+    'text_disabled': '#585858',                  # Chữ bị vô hiệu hóa
+    'text_bright': '#ffffff',                    # Chữ màu trắng sáng nổi bật
 
-    # Borders
+    # Nhóm đường viền (Borders)
     'border_light': '#3e3e42',
     'border_dark': '#1e1e1e',
 
-    # Channel Colors
-    'ch0': '#ff5252',
-    'ch1': '#ffb142',
-    'ch2': '#2ccce4',
-    'ch3': '#33d9b2',
-    'ch4': '#706fd3',
-    'ch5': '#f78fb3',
-    'ch6': '#82ccdd',
-    'ch7': '#b33939',
+    # Nhóm màu riêng biệt cho 8 kênh logic (phân biệt các đường sóng tín hiệu)
+    'ch0': '#ff5252',                            # Kênh 0: Đỏ
+    'ch1': '#ffb142',                            # Kênh 1: Cam
+    'ch2': '#2ccce4',                            # Kênh 2: Xanh dương sáng
+    'ch3': '#33d9b2',                            # Kênh 3: Xanh lá cây nhạt
+    'ch4': '#706fd3',                            # Kênh 4: Tím
+    'ch5': '#f78fb3',                            # Kênh 5: Hồng
+    'ch6': '#82ccdd',                            # Kênh 6: Xanh băng giá
+    'ch7': '#b33939',                            # Kênh 7: Đỏ sẫm
 }
 
+# Mảng lưu màu sắc của 8 kênh logic đo đạc
 CHANNEL_COLORS = [COLORS[f'ch{i}'] for i in range(8)]
 
 
 def get_main_stylesheet():
-    """Returns the main application stylesheet"""
+    """
+    Trả về chuỗi định dạng CSS QSS (Qt Style Sheet) cho giao diện cửa sổ ứng dụng.
+    """
     return f"""
     QMainWindow {{
         background-color: {COLORS['bg_primary']};
@@ -87,6 +91,7 @@ def get_main_stylesheet():
         border: 1px solid {COLORS['bg_tertiary']};
     }}
 
+    /* Phong cách nút bấm Capture (Nổi bật nhất) */
     QPushButton#captureBtn {{
         background-color: {COLORS['accent_primary']};
         border: 1px solid {COLORS['accent_primary']};
@@ -111,12 +116,14 @@ def get_main_stylesheet():
         border: 1px solid {COLORS['bg_tertiary']};
     }}
 
+    /* Phong cách nút Connect khi đã kết nối */
     QPushButton#connectBtn[connected="true"] {{
         background-color: {COLORS['bg_tertiary']};
         border: 1px solid {COLORS['success']};
         color: {COLORS['success']};
     }}
 
+    /* Phong cách các nút bấm khi được tích chọn (Checked) */
     QPushButton#followBtn:checked {{
         background-color: {COLORS['accent_primary']};
         border: 1px solid {COLORS['accent_secondary']};
@@ -136,6 +143,7 @@ def get_main_stylesheet():
         color: {COLORS['text_bright']};
     }}
 
+    /* Danh sách chọn (ComboBox) */
     QComboBox {{
         background-color: {COLORS['bg_header']};
         color: {COLORS['text_primary']};
@@ -177,6 +185,7 @@ def get_main_stylesheet():
         border: none;
     }}
 
+    /* Phong cách nhãn tiêu đề phân mục */
     QLabel#sectionLabel {{
         color: {COLORS['accent_secondary']};
         font-weight: 600;
@@ -185,6 +194,7 @@ def get_main_stylesheet():
         letter-spacing: 0.5px;
     }}
 
+    /* Thanh trạng thái dưới cùng */
     QStatusBar {{
         background-color: {COLORS['accent_primary']};
         color: white;
@@ -195,11 +205,13 @@ def get_main_stylesheet():
         border: none;
     }}
 
+    /* Panel Toolbar */
     QWidget#toolbar {{
         background-color: {COLORS['bg_secondary']};
         border-bottom: 1px solid {COLORS['border_light']};
     }}
 
+    /* Đường chia kẻ khung */
     QFrame[frameShape="4"] {{
         background-color: {COLORS['border_light']};
         max-width: 1px;
@@ -212,6 +224,7 @@ def get_main_stylesheet():
         border: none;
     }}
 
+    /* Thanh trượt (Slider) */
     QSlider::groove:horizontal {{
         border: 1px solid {COLORS['bg_tertiary']};
         height: 6px;
@@ -233,6 +246,7 @@ def get_main_stylesheet():
         background: {COLORS['accent_secondary']};
     }}
 
+    /* Thanh kéo giãn phân chia khung nhìn (Splitter Handle) */
     QSplitter::handle:vertical {{
         background-color: {COLORS['border_light']};
         height: 8px;
@@ -243,6 +257,7 @@ def get_main_stylesheet():
         background-color: {COLORS['accent_primary']};
     }}
 
+    /* Thanh cuộn (ScrollBars) */
     QScrollBar:horizontal {{
         background: {COLORS['bg_primary']};
         height: 10px;
@@ -280,6 +295,7 @@ def get_main_stylesheet():
         background: none;
     }}
 
+    /* Khung chú giải khi di chuột qua (ToolTip) */
     QToolTip {{
         background-color: {COLORS['bg_secondary']};
         color: {COLORS['text_primary']};
@@ -290,7 +306,12 @@ def get_main_stylesheet():
 
 
 def get_status_indicator_html(status, text):
-    """Generate HTML for status indicator with colored dot"""
+    """
+    Tạo chuỗi HTML đại diện cho nhãn trạng thái với chấm tròn có màu động.
+    
+    - status: Trạng thái ('connected', 'disconnected', 'capturing', 'warning', 'error').
+    - text: Văn bản đi kèm.
+    """
     color_map = {
         'connected': COLORS['success'],
         'disconnected': COLORS['text_disabled'],

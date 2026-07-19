@@ -12,10 +12,15 @@ extern "C" {
 #include "la_protocol.h"
 }
 
+/* Định nghĩa chân LED mặc định là PC13 (đèn LED onboard của bo mạch Blue Pill) */
 #ifndef LED_BUILTIN
 #define LED_BUILTIN PC13
 #endif
 
+/*
+ * Kiểm tra xem các macro của DMA1 Channel 2 và các thanh ghi liên quan có tồn tại không
+ * để quyết định xem có biên dịch phần mềm hỗ trợ chế độ DMA capture hay không.
+ */
 #if LA_ENABLE_DMA_CAPTURE && defined(DMA1) && defined(DMA1_Channel2) &&        \
     defined(DMA_CCR_EN) && defined(DMA_CCR_PSIZE_1) && defined(TIM_DIER_UDE)
 #define LA_DMA_CAPTURE_COMPILED 1
@@ -23,6 +28,11 @@ extern "C" {
 #define LA_DMA_CAPTURE_COMPILED 0
 #endif
 
+/*
+ * Thiết lập chế độ lấy mẫu mặc định lúc khởi động:
+ * - Nếu có DMA: Sử dụng chế độ lấy mẫu qua DMA (TIM2 kích hoạt DMA đọc trực tiếp GPIO IDR).
+ * - Nếu không có DMA: Fallback về chế độ lấy mẫu dùng ngắt Timer trực tiếp (ISR).
+ */
 #if LA_DMA_CAPTURE_COMPILED
 #define LA_DEFAULT_CAPTURE_MODE LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR
 #else
@@ -30,37 +40,59 @@ extern "C" {
 #endif
 
 #if LA_DMA_CAPTURE_COMPILED
-#define LA_DMA_CHANNEL DMA1_Channel2
-#define LA_DMA_IRQN DMA1_Channel2_IRQn
+#define LA_DMA_CHANNEL DMA1_Channel2                  // Kênh DMA mặc định cho TIM2_UP
+#define LA_DMA_IRQN DMA1_Channel2_IRQn                // Ngắt DMA tương ứng
+/* Các cờ xóa trạng thái ngắt DMA Channel 2 (Global, Transfer Complete, Half Transfer, Transfer Error) */
 #define LA_DMA_CLEAR_FLAGS                                                    \
   (DMA_IFCR_CGIF2 | DMA_IFCR_CTCIF2 | DMA_IFCR_CHTIF2 | DMA_IFCR_CTEIF2)
 #endif
 
+/* Khởi tạo cổng truyền thông nối tiếp UART dùng chân cấu hình trong board_config.h */
 static HardwareSerial AnalyzerSerial(LA_UART_RX_PIN, LA_UART_TX_PIN);
 #if !LA_USE_DIRECT_TIMER_IRQ
 static HardwareTimer sampleTimer(LA_TIMER_INSTANCE);
 static bool timerInterruptAttached = false;
 #endif
 
+/*
+ * Bộ nhớ đệm RAM lưu trữ các mẫu logic thu thập được.
+ * Đảm bảo căn lề 4 bytes (aligned(4)) để CPU ARM Cortex-M truy xuất nhanh nhất.
+ */
 static LA_SAMPLE_TYPE captureStorage[LA_CAPTURE_BUFFER_SAMPLES]
     __attribute__((aligned(4)));
+
+/* Bộ nhớ đệm lưu trữ phần Header gói tin trước khi gửi đi */
 static uint8_t frameHeaderStorage[LA_FRAME_HEADER_LENGTH]
     __attribute__((aligned(4)));
+
+/* Context trung tâm lưu thông tin trạng thái phiên lấy mẫu */
 static la_capture_context_t captureContext;
+
+/* Biến cờ báo hiệu phiên capture đã chạm tới trạng thái kết thúc (COMPLETE, OVERFLOW...) */
 static volatile bool terminalStateSeen = false;
+
+/* Lưu trữ chế độ capture engine hiện tại đang chạy (ISR hay DMA) */
 static volatile uint8_t activeCaptureEngine = LA_CAPTURE_MODE_TIMER_ISR_DIRECT;
+
+/* Bộ đếm số lần hàm ngắt lấy mẫu (ISR) bị quá tải (không xử lý kịp trước ngắt kế tiếp) */
 static volatile uint32_t timerIsrOverrunCount = 0U;
 
 #if LA_DMA_CAPTURE_COMPILED
+/* Số lượng mẫu yêu cầu thu thập bằng DMA hiện thời */
 static volatile uint32_t activeDmaSampleCount = 0U;
+/* Bộ đếm số lượng lỗi xảy ra trong quá trình truyền dữ liệu DMA */
 static volatile uint32_t dmaTransferErrors = 0U;
 #endif
 
-extern "C" char _end;
-extern "C" char _estack;
+/* Các ký hiệu phân vùng vùng nhớ linker script để đo dung lượng RAM tĩnh và Heap */
+extern "C" char _end;      // Địa chỉ kết thúc của phân vùng RAM tĩnh (BSS/DATA)
+extern "C" char _estack;   // Địa chỉ bắt đầu của Stack (đỉnh RAM)
 
+/* Vùng đệm chứa dòng lệnh nhận được từ cổng Serial */
 static char commandBuffer[96];
 static uint8_t commandLength = 0U;
+
+/* Cấu hình bộ Timer hiện tại */
 static la_board_timer_plan_t activeTimerPlan = {
     0U,
     LA_DEFAULT_SAMPLE_RATE_HZ,
@@ -70,6 +102,7 @@ static la_board_timer_plan_t activeTimerPlan = {
     0,
 };
 
+/* Cấu hình phiên lấy mẫu hiện hành */
 static la_config_t activeConfig = {
     LA_DEFAULT_SAMPLE_RATE_HZ,
     LA_CHANNEL_COUNT,
@@ -81,6 +114,7 @@ static la_config_t activeConfig = {
     LA_DEFAULT_CAPTURE_MODE,
 };
 
+/* Cấu hình điều kiện kích hoạt trigger hiện hành */
 static la_trigger_t activeTrigger = {
     LA_TRIGGER_IMMEDIATE,
     0U,
@@ -90,6 +124,9 @@ static la_trigger_t activeTrigger = {
     LA_CAPTURE_BUFFER_SAMPLES,
 };
 
+/*
+ * Kiểm tra xem hệ thống lấy mẫu hiện tại có đang trong trạng thái capture tích cực hay không.
+ */
 static bool isCaptureActive(void) {
   const la_capture_state_t state = captureContext.status.state;
   return state == LA_CAPTURE_ARMED || state == LA_CAPTURE_PRETRIGGER ||
@@ -97,6 +134,9 @@ static bool isCaptureActive(void) {
          state == LA_CAPTURE_POSTTRIGGER;
 }
 
+/*
+ * Đọc giá trị thanh ghi con trỏ ngăn xếp chính (MSP - Main Stack Pointer) hiện tại của CPU ARM.
+ */
 static uint32_t readMainStackPointer(void) {
 #if defined(__arm__) || defined(__thumb__)
   uint32_t sp;
@@ -107,8 +147,11 @@ static uint32_t readMainStackPointer(void) {
 #endif
 }
 
+/*
+ * Ước lượng dung lượng RAM trống tại thời điểm chạy bằng cách lấy giá trị MSP trừ đi heap start (_end).
+ * Giúp debug phát hiện nguy cơ tràn RAM.
+ */
 static uint32_t estimateRuntimeFreeBytes(void) {
-  // Chi la uoc luong luc chay; tran stack that phai do tren board.
   const uintptr_t heapStart = (uintptr_t)&_end;
   const uintptr_t stackPointer = (uintptr_t)readMainStackPointer();
   if (stackPointer <= heapStart) {
@@ -117,6 +160,9 @@ static uint32_t estimateRuntimeFreeBytes(void) {
   return (uint32_t)(stackPointer - heapStart);
 }
 
+/*
+ * Trả về chuỗi mô tả trạng thái máy trạng thái capture.
+ */
 static const char *captureStateName(la_capture_state_t state) {
   switch (state) {
   case LA_CAPTURE_IDLE:
@@ -144,6 +190,9 @@ static const char *captureStateName(la_capture_state_t state) {
   }
 }
 
+/*
+ * Trả về chuỗi mô tả chế độ capture.
+ */
 static const char *captureModeName(la_capture_mode_t mode) {
   switch (mode) {
   case LA_CAPTURE_MODE_TIMER_ISR_SAFE:
@@ -159,12 +208,20 @@ static const char *captureModeName(la_capture_mode_t mode) {
   }
 }
 
+/*
+ * Trả về tên cơ chế thu thập mẫu đang kích hoạt.
+ */
 static const char *activeEngineName(void) {
   return activeCaptureEngine == LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR
              ? "TIMER_DMA_GPIO_IDR"
              : "TIMER_ISR_DIRECT";
 }
 
+/*
+ * Đọc tần số clock chính xác đang cấp cho Timer TIM2 từ HAL RCC.
+ * Trên dòng chip STM32, nếu bộ chia tần số của APB1 khác 1 (RCC_HCLK_DIV1), 
+ * thì tần số cấp cho Timer APB1 sẽ được nhân đôi.
+ */
 static uint32_t readTimer2ClockHz(void) {
   RCC_ClkInitTypeDef clockConfig = {};
   uint32_t flashLatency = 0U;
@@ -175,7 +232,6 @@ static uint32_t readTimer2ClockHz(void) {
     return 0U;
   }
 
-  // Tren STM32F1, timer APB nhan PCLK khi divider=1, nguoc lai nhan 2*PCLK.
   if (clockConfig.APB1CLKDivider == RCC_HCLK_DIV1) {
     return peripheralClockHz;
   }
@@ -185,15 +241,17 @@ static uint32_t readTimer2ClockHz(void) {
   return peripheralClockHz * 2U;
 }
 
+/*
+ * Khởi tạo cổng UART với tốc độ Baud Rate quy định.
+ */
 extern "C" void la_board_uart_or_usb_init(void) {
   AnalyzerSerial.begin(LA_UART_BAUD_RATE);
 }
 
+/*
+ * Khởi tạo 8 chân đo Logic thành cổng Input đầu vào.
+ */
 extern "C" void la_board_gpio_init_8ch(void) {
-  /*
-   * Cac chan capture la input so 3.3 V. Khong noi truc tiep 5 V/cao ap
-   * vao GPIO STM32 neu chua co mach bao ve hoac buffer.
-   */
   pinMode(LA_CH0_PIN, LA_INPUT_PULL_MODE);
   pinMode(LA_CH1_PIN, LA_INPUT_PULL_MODE);
   pinMode(LA_CH2_PIN, LA_INPUT_PULL_MODE);
@@ -204,35 +262,51 @@ extern "C" void la_board_gpio_init_8ch(void) {
   pinMode(LA_CH7_PIN, LA_INPUT_PULL_MODE);
 }
 
+/*
+ * Hàm ngắt con Timer (ISR) gọi tại mỗi chu kỳ lấy mẫu.
+ * Hàm này được định nghĩa thuộc tính chạy trên RAM (.RamFunc) để đạt độ trễ nhỏ nhất.
+ */
 static LA_ALWAYS_INLINE LA_RAMFUNC void sampleTimerISR(void) {
 #if LA_ENABLE_DWT_BENCHMARK
-  la_benchmark_start_cycles();
+  la_benchmark_start_cycles();                   // Bắt đầu đo chu kỳ CPU
 #endif
+  /* Đọc trạng thái 8 chân GPIO đầu vào */
   const uint8_t sample = la_board_read_gpio_snapshot_8ch_fast();
+  /* Nạp mẫu vào máy trạng thái */
   la_capture_isr_fastpath_sample(&captureContext, sample);
 #if LA_ENABLE_DWT_BENCHMARK
-  la_benchmark_stop_cycles();
+  la_benchmark_stop_cycles();                    // Kết thúc đo chu kỳ CPU
 #endif
 
+  /* Nếu máy trạng thái chuyển sang trạng thái kết thúc (đã lấy đủ mẫu...) */
   if (la_capture_state_is_terminal_fast(captureContext.status.state)) {
-    // Dung timer bang thanh ghi truc tiep; ISR khong goi UART hay xu ly nang.
+    /* Tắt Timer lấy mẫu ngay lập tức để ngắt không tiếp tục xảy ra */
 #if defined(TIM_CR1_CEN)
-    LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;
+    LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;     // Tắt Timer qua thanh ghi CR1
 #elif !LA_USE_DIRECT_TIMER_IRQ
     sampleTimer.pause();
 #endif
-    terminalStateSeen = true;
+    terminalStateSeen = true;                   // Bật cờ báo hiệu kết thúc phiên đo
   }
 }
 
 #if LA_USE_DIRECT_TIMER_IRQ
+/*
+ * Trình phục vụ ngắt phần cứng (IRQHandler) trực tiếp của Timer TIM2.
+ */
 extern "C" void LA_TIMER_IRQ_HANDLER(void) LA_RAMFUNC;
 extern "C" void LA_TIMER_IRQ_HANDLER(void) {
+  /* Kiểm tra xem cờ báo ngắt tràn (Update Interrupt Flag - UIF) của Timer có bật không */
   if ((LA_TIMER_INSTANCE->SR & TIM_SR_UIF) != 0U) {
-    // Xoa co update som de IRQ ke tiep khong bi tre; phan lay mau o sau rat ngan.
+    /* Xóa cờ ngắt sớm nhất có thể để giảm nguy cơ bỏ lỡ ngắt tiếp theo */
     LA_TIMER_INSTANCE->SR = 0U;
-    sampleTimerISR();
-    // UIF tai lap trong khi dang xu ly => ISR da cham it nhat mot chu ky mau.
+    sampleTimerISR();                           // Gọi xử lý lấy mẫu
+    
+    /*
+     * Nếu cờ UIF lại bị bật lên ngay lập tức sau khi xử lý xong hàm lấy mẫu,
+     * điều này chứng tỏ tốc độ lấy mẫu quá nhanh so với tốc độ xử lý của CPU (CPU Overrun).
+     * Ta tăng biến đếm cảnh báo.
+     */
     if ((LA_TIMER_INSTANCE->SR & TIM_SR_UIF) != 0U &&
         timerIsrOverrunCount != UINT32_MAX) {
       timerIsrOverrunCount++;
@@ -241,6 +315,9 @@ extern "C" void LA_TIMER_IRQ_HANDLER(void) {
 }
 #endif
 
+/*
+ * Khởi tạo phần cứng Timer phát nhịp lấy mẫu.
+ */
 extern "C" bool la_board_timer_init(uint32_t sample_rate_hz,
                                     la_board_timer_plan_t *plan_out) {
   la_board_timer_plan_t plan;
@@ -250,14 +327,15 @@ extern "C" bool la_board_timer_init(uint32_t sample_rate_hz,
   }
 
 #if LA_USE_DIRECT_TIMER_IRQ
-  LA_TIMER_ENABLE_CLOCK();
-  LA_TIMER_INSTANCE->CR1 = 0U;
-  LA_TIMER_INSTANCE->PSC = (uint16_t)plan.prescaler;
-  LA_TIMER_INSTANCE->ARR = (uint16_t)plan.autoreload;
-  LA_TIMER_INSTANCE->CNT = 0U;
-  LA_TIMER_INSTANCE->EGR = TIM_EGR_UG;
-  LA_TIMER_INSTANCE->SR = 0U;
-  LA_TIMER_INSTANCE->DIER = TIM_DIER_UIE;
+  /* Cấu hình Timer TIM2 thông qua các thanh ghi trực tiếp để tối ưu hóa hiệu năng */
+  LA_TIMER_ENABLE_CLOCK();                      // Cấp Clock cho TIM2
+  LA_TIMER_INSTANCE->CR1 = 0U;                  // Reset cấu hình điều khiển
+  LA_TIMER_INSTANCE->PSC = (uint16_t)plan.prescaler;   // Ghi bộ chia PSC
+  LA_TIMER_INSTANCE->ARR = (uint16_t)plan.autoreload;  // Ghi giá trị nạp lại tự động ARR
+  LA_TIMER_INSTANCE->CNT = 0U;                  // Reset bộ đếm về 0
+  LA_TIMER_INSTANCE->EGR = TIM_EGR_UG;          // Tạo sự kiện update để cập nhật PSC/ARR
+  LA_TIMER_INSTANCE->SR = 0U;                   // Xóa cờ ngắt
+  LA_TIMER_INSTANCE->DIER = TIM_DIER_UIE;       // Bật ngắt Update (UIE)
 #else
   sampleTimer.pause();
   sampleTimer.setPrescaleFactor(plan.prescaler + 1U);
@@ -267,9 +345,11 @@ extern "C" bool la_board_timer_init(uint32_t sample_rate_hz,
     timerInterruptAttached = true;
   }
 #endif
+
 #if defined(LA_TIMER_IRQN)
+  /* Thiết lập mức ưu tiên ngắt cao nhất cho ngắt Timer */
   NVIC_SetPriority((IRQn_Type)LA_TIMER_IRQN, LA_TIMER_IRQ_PRIORITY);
-  NVIC_EnableIRQ((IRQn_Type)LA_TIMER_IRQN);
+  NVIC_EnableIRQ((IRQn_Type)LA_TIMER_IRQN);     // Cho phép ngắt trên NVIC
 #endif
 #if !LA_USE_DIRECT_TIMER_IRQ
   sampleTimer.refresh();
@@ -282,32 +362,44 @@ extern "C" bool la_board_timer_init(uint32_t sample_rate_hz,
   return true;
 }
 
+/*
+ * Bắt đầu kích hoạt Timer chạy.
+ */
 extern "C" void la_board_timer_start(void) {
 #if LA_USE_DIRECT_TIMER_IRQ
   LA_TIMER_INSTANCE->CNT = 0U;
   LA_TIMER_INSTANCE->SR = 0U;
-  LA_TIMER_INSTANCE->CR1 |= TIM_CR1_CEN;
+  LA_TIMER_INSTANCE->CR1 |= TIM_CR1_CEN;        // Bật bit Counter Enable (CEN)
 #else
   sampleTimer.refresh();
   sampleTimer.resume();
 #endif
 }
 
+/*
+ * Dừng Timer.
+ */
 extern "C" void la_board_timer_stop(void) {
 #if LA_USE_DIRECT_TIMER_IRQ
-  LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;
+  LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;       // Tắt bit Counter Enable (CEN)
 #else
   sampleTimer.pause();
 #endif
 }
 
 #if LA_DMA_CAPTURE_COMPILED
+/*
+ * Dừng các ngoại vi phần cứng DMA phục vụ lấy mẫu.
+ */
 static void stopDmaCaptureHardware(void) {
-  LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;
-  LA_TIMER_INSTANCE->DIER &= ~TIM_DIER_UDE;
-  LA_DMA_CHANNEL->CCR &= ~DMA_CCR_EN;
+  LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;       // Dừng Timer
+  LA_TIMER_INSTANCE->DIER &= ~TIM_DIER_UDE;     // Tắt phát yêu cầu DMA từ Timer
+  LA_DMA_CHANNEL->CCR &= ~DMA_CCR_EN;           // Tắt kênh DMA
 }
 
+/*
+ * Tính số lượng mẫu cần thu thập trong chế độ trigger tức thời (Immediate).
+ */
 static uint32_t immediateCaptureSampleCountFor(const la_config_t *config) {
   if (config->posttrigger_samples >= config->max_samples) {
     return config->max_samples;
@@ -315,9 +407,13 @@ static uint32_t immediateCaptureSampleCountFor(const la_config_t *config) {
   return config->posttrigger_samples + 1U;
 }
 
+/*
+ * Kiểm tra xem cấu hình đo có thể sử dụng chế độ truyền DMA One-Shot hay không.
+ * Chỉ hỗ trợ chế độ DMA khi chọn mode TIMER_DMA_GPIO_IDR, trigger kiểu IMMEDIATE,
+ * và kích thước dữ liệu nằm trong giới hạn thanh ghi bộ đếm DMA CNDTR (65535).
+ */
 static bool canUseDmaOneShotFor(const la_config_t *config,
                                 const la_trigger_t *trigger) {
-  // DMA v2 hien chi an toan cho immediate; trigger khac fallback ISR.
   return config->capture_mode == LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR &&
          trigger->type == LA_TRIGGER_IMMEDIATE &&
          immediateCaptureSampleCountFor(config) <= LA_DMA_MAX_TRANSFER_SAMPLES;
@@ -327,55 +423,73 @@ static bool canUseDmaOneShot(void) {
   return canUseDmaOneShotFor(&activeConfig, &activeTrigger);
 }
 
+/*
+ * Thiết lập cấu hình và bắt đầu chạy lấy mẫu bằng cơ chế DMA One-Shot.
+ * Tín hiệu sườn xung/tràn từ Timer sẽ tự động kích hoạt kênh DMA đọc thanh ghi GPIO IDR
+ * và ghi thẳng vào mảng RAM mà không cần CPU can thiệp.
+ */
 static bool startDmaCaptureOneShot(uint32_t sampleCount) {
   if (sampleCount == 0U || sampleCount > LA_DMA_MAX_TRANSFER_SAMPLES) {
     return false;
   }
 
   activeDmaSampleCount = sampleCount;
-  RCC->AHBENR |= RCC_AHBENR_DMA1EN;
-  DMA1->IFCR = LA_DMA_CLEAR_FLAGS;
+  RCC->AHBENR |= RCC_AHBENR_DMA1EN;             // Cấp clock cho DMA1
+  DMA1->IFCR = LA_DMA_CLEAR_FLAGS;              // Xóa toàn bộ cờ ngắt cũ của DMA
 
+  /* Dừng Timer cấu hình lại */
   LA_TIMER_INSTANCE->CR1 &= ~TIM_CR1_CEN;
   LA_TIMER_INSTANCE->DIER = 0U;
   LA_TIMER_INSTANCE->CNT = 0U;
   LA_TIMER_INSTANCE->SR = 0U;
 
-  LA_DMA_CHANNEL->CCR &= ~DMA_CCR_EN;
-  LA_DMA_CHANNEL->CPAR = (uint32_t)(uintptr_t)&LA_INPUT_PORT->IDR;
-  LA_DMA_CHANNEL->CMAR = (uint32_t)(uintptr_t)captureStorage;
-  LA_DMA_CHANNEL->CNDTR = sampleCount;
+  /* Thiết lập kênh DMA */
+  LA_DMA_CHANNEL->CCR &= ~DMA_CCR_EN;           // Tắt kênh DMA để ghi cấu hình
+  LA_DMA_CHANNEL->CPAR = (uint32_t)(uintptr_t)&LA_INPUT_PORT->IDR; // Địa chỉ nguồn: Thanh ghi GPIO IDR
+  LA_DMA_CHANNEL->CMAR = (uint32_t)(uintptr_t)captureStorage;     // Địa chỉ đích: Vùng đệm RAM
+  LA_DMA_CHANNEL->CNDTR = sampleCount;          // Số lượng phần tử cần chuyển
+
   /*
-   * GPIO IDR cua STM32F1 bat buoc doc word. DMA doc peripheral word,
-   * sau do cat byte thap vao buffer uint8_t (MSIZE mac dinh la byte).
+   * Cấu hình thanh ghi điều khiển DMA (CCR):
+   * - MINC: Tự động tăng địa chỉ bộ nhớ đích (RAM) sau mỗi mẫu.
+   * - TCIE: Bật ngắt khi truyền xong gói tin (Transfer Complete Interrupt Enable).
+   * - TEIE: Bật ngắt khi xảy ra lỗi truyền dẫn (Transfer Error Interrupt Enable).
+   * - PL_0 | PL_1: Đặt mức ưu tiên DMA ở mức cao nhất (Very High).
+   * - PSIZE_1: Kích thước dữ liệu đọc ngoại vi là 32-bit (với STM32F1, bắt buộc đọc GPIO IDR kiểu 32-bit/Word).
    */
   LA_DMA_CHANNEL->CCR =
       DMA_CCR_MINC | DMA_CCR_TCIE | DMA_CCR_TEIE | DMA_CCR_PL_0 |
       DMA_CCR_PL_1 | DMA_CCR_PSIZE_1;
 
+  /* Cấu hình ngắt DMA trong NVIC */
   NVIC_SetPriority((IRQn_Type)LA_DMA_IRQN, LA_DMA_IRQ_PRIORITY);
   NVIC_EnableIRQ((IRQn_Type)LA_DMA_IRQN);
 
-  LA_DMA_CHANNEL->CCR |= DMA_CCR_EN;
-  LA_TIMER_INSTANCE->DIER = TIM_DIER_UDE;
-  LA_TIMER_INSTANCE->CR1 |= TIM_CR1_CEN;
+  LA_DMA_CHANNEL->CCR |= DMA_CCR_EN;            // Kích hoạt kênh DMA
+  LA_TIMER_INSTANCE->DIER = TIM_DIER_UDE;       // Kích hoạt Timer tạo xung trigger gửi tới DMA (Update DMA request)
+  LA_TIMER_INSTANCE->CR1 |= TIM_CR1_CEN;        // Bắt đầu chạy Timer phát nhịp
   return true;
 }
 
+/*
+ * Trình phục vụ ngắt DMA Channel 2. Gọi khi DMA truyền tải xong số mẫu yêu cầu hoặc bị lỗi.
+ */
 extern "C" void DMA1_Channel2_IRQHandler(void) {
-  const uint32_t flags = DMA1->ISR;
+  const uint32_t flags = DMA1->ISR;             // Đọc trạng thái ngắt của DMA1
   if ((flags & (DMA_ISR_TEIF2 | DMA_ISR_TCIF2)) == 0U) {
     return;
   }
 
-  stopDmaCaptureHardware();
-  DMA1->IFCR = LA_DMA_CLEAR_FLAGS;
+  stopDmaCaptureHardware();                     // Dừng phần cứng lấy mẫu
+  DMA1->IFCR = LA_DMA_CLEAR_FLAGS;              // Xóa cờ ngắt
 
   if ((flags & DMA_ISR_TEIF2) != 0U) {
+    /* Xử lý khi có lỗi truyền tải DMA */
     dmaTransferErrors++;
     captureContext.status.state = LA_CAPTURE_ERROR;
     captureContext.status.last_error = LA_ERROR_DMA;
   } else {
+    /* Đã lấy mẫu thành công */
     const uint32_t sampleCount = activeDmaSampleCount;
     captureContext.status.state = LA_CAPTURE_COMPLETE;
     captureContext.status.write_index = sampleCount;
@@ -392,6 +506,10 @@ extern "C" void DMA1_Channel2_IRQHandler(void) {
 }
 #endif
 
+/*
+ * Hàm gửi dữ liệu nhị phân về PC thông qua cổng Serial theo từng gói nhỏ (chunk size 64 bytes)
+ * để tránh làm quá tải bộ đệm gửi UART TX của vi điều khiển.
+ */
 extern "C" void la_board_write_bytes_blocking_after_capture(
     const uint8_t *data, size_t len) {
   const size_t chunkSize = 64U;
@@ -402,9 +520,12 @@ extern "C" void la_board_write_bytes_blocking_after_capture(
     AnalyzerSerial.write(data + offset, chunk);
     offset += chunk;
   }
-  AnalyzerSerial.flush();
+  AnalyzerSerial.flush();                        // Đợi gửi xong hoàn toàn dữ liệu
 }
 
+/*
+ * Đọc nhanh trạng thái logic 8 chân GPIO.
+ */
 extern "C" uint8_t la_board_read_gpio_snapshot_8ch(void) {
 #if LA_USE_DIRECT_GPIO_READ
   return la_board_read_gpio_snapshot_8ch_fast();
@@ -413,6 +534,9 @@ extern "C" uint8_t la_board_read_gpio_snapshot_8ch(void) {
 #endif
 }
 
+/*
+ * Hàm khởi tạo chính cho bo mạch phần cứng.
+ */
 extern "C" void la_board_init(void) {
   la_board_uart_or_usb_init();
 #if defined(LA_UART_IRQN)
@@ -422,16 +546,25 @@ extern "C" void la_board_init(void) {
   la_benchmark_init();
 }
 
+/*
+ * Gửi phản hồi "OK <nội dung>" về máy tính.
+ */
 static void printOk(const char *text) {
   AnalyzerSerial.print("OK ");
   AnalyzerSerial.println(text);
 }
 
+/*
+ * Gửi phản hồi lỗi "ERR <nội dung>" về máy tính.
+ */
 static void printError(const char *text) {
   AnalyzerSerial.print("ERR ");
   AnalyzerSerial.println(text);
 }
 
+/*
+ * Gửi toàn bộ thông tin siêu dữ liệu cấu hình phần cứng thiết bị (command "INFO") về máy tính.
+ */
 static void sendInfo(void) {
   AnalyzerSerial.print("INFO ");
   AnalyzerSerial.println(LA_FIRMWARE_VERSION);
@@ -463,7 +596,6 @@ static void sendInfo(void) {
   AnalyzerSerial.print("CAPTURE_MODE ");
   AnalyzerSerial.println(captureModeName(activeConfig.capture_mode));
 #if LA_DMA_CAPTURE_COMPILED
-  // Mapping da xac nhan voi core/RM0008; toc do toi da phai do tren board.
   AnalyzerSerial.println("DMA ONE_SHOT_IMMEDIATE_VERIFIED_GRAY_HIL");
   AnalyzerSerial.println("DMA_MAP TIM2_UP_DMA1_CHANNEL2_RM0008");
 #else
@@ -475,6 +607,9 @@ static void sendInfo(void) {
   AnalyzerSerial.println("END INFO");
 }
 
+/*
+ * Gửi thông tin trạng thái hoạt động hiện thời (command "STATUS") về máy tính.
+ */
 static void sendStatus(void) {
   AnalyzerSerial.print("STATUS ");
   AnalyzerSerial.println(captureStateName(captureContext.status.state));
@@ -511,6 +646,9 @@ static void sendStatus(void) {
   AnalyzerSerial.println("END STATUS");
 }
 
+/*
+ * Gửi thông tin kiểm thử hiệu năng CPU DWT (command "BENCH") về máy tính.
+ */
 static void sendBench(void) {
   const la_timing_budget_t budget = la_calculate_timing_budget(
       activeTimerPlan.timer_clock_hz, activeConfig.sample_rate_hz,
@@ -544,6 +682,9 @@ static void sendBench(void) {
   AnalyzerSerial.println(la_benchmark_get_sample_count());
 }
 
+/*
+ * Cấu hình tần số lấy mẫu.
+ */
 static bool setRate(uint32_t sampleRateHz) {
   la_board_timer_plan_t plan;
   la_config_t candidate = activeConfig;
@@ -565,6 +706,9 @@ static bool setRate(uint32_t sampleRateHz) {
   return true;
 }
 
+/*
+ * Cấu hình số mẫu lưu trước trigger.
+ */
 static bool setPretrigger(uint32_t samples) {
   la_config_t candidate = activeConfig;
   candidate.pretrigger_samples = samples;
@@ -580,6 +724,9 @@ static bool setPretrigger(uint32_t samples) {
   return true;
 }
 
+/*
+ * Cấu hình số mẫu lưu sau trigger.
+ */
 static bool setPosttrigger(uint32_t samples) {
   la_config_t candidate = activeConfig;
   candidate.posttrigger_samples = samples;
@@ -595,6 +742,9 @@ static bool setPosttrigger(uint32_t samples) {
   return true;
 }
 
+/*
+ * Cấu hình trigger sườn xung.
+ */
 static bool setEdgeTrigger(la_trigger_edge_t edge, uint32_t channel) {
   if (channel >= LA_CHANNEL_COUNT) {
     return false;
@@ -604,6 +754,7 @@ static bool setEdgeTrigger(la_trigger_edge_t edge, uint32_t channel) {
   candidate.edge = edge;
   candidate.channel = (uint8_t)channel;
   candidate.timeout_samples = activeConfig.max_samples * 8U;
+  /* Chế độ trigger sườn chỉ hỗ trợ chạy ngắt (ISR) nên cần kiểm tra giới hạn tần số của ISR */
   if (!la_board_sample_rate_supported(activeConfig.sample_rate_hz, false) ||
       la_capture_validate_config(&activeConfig, &candidate,
                                  LA_CAPTURE_BUFFER_SAMPLES) != LA_ERROR_NONE) {
@@ -613,6 +764,9 @@ static bool setEdgeTrigger(la_trigger_edge_t edge, uint32_t channel) {
   return true;
 }
 
+/*
+ * Cấu hình trigger theo mẫu trạng thái bit.
+ */
 static bool setPatternTrigger(uint32_t mask, uint32_t value) {
   if (mask > 0xFFU || value > 0xFFU) {
     return false;
@@ -631,6 +785,9 @@ static bool setPatternTrigger(uint32_t mask, uint32_t value) {
   return true;
 }
 
+/*
+ * Thiết lập chế độ lấy mẫu (ISR hay DMA).
+ */
 static bool setCaptureMode(la_capture_mode_t mode) {
   if (mode == LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR) {
 #if !LA_DMA_CAPTURE_COMPILED
@@ -657,6 +814,9 @@ static bool setCaptureMode(la_capture_mode_t mode) {
   return true;
 }
 
+/*
+ * Thiết lập trigger tức thời (Immediate).
+ */
 static bool setImmediateTrigger(void) {
   la_trigger_t candidate = activeTrigger;
   candidate.type = LA_TRIGGER_IMMEDIATE;
@@ -673,6 +833,9 @@ static bool setImmediateTrigger(void) {
   return true;
 }
 
+/*
+ * Bật trạng thái Arm chuẩn bị lấy mẫu.
+ */
 static void armCapture(void) {
   if (isCaptureActive()) {
     printError("BUSY");
@@ -701,7 +864,7 @@ static void armCapture(void) {
 
   terminalStateSeen = false;
   timerIsrOverrunCount = 0U;
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);             // Sáng đèn LED báo hiệu đang đo
 
 #if LA_DMA_CAPTURE_COMPILED
   if (useDma) {
@@ -720,10 +883,13 @@ static void armCapture(void) {
 #endif
 
   activeCaptureEngine = LA_CAPTURE_MODE_TIMER_ISR_DIRECT;
-  la_board_timer_start();
+  la_board_timer_start();                       // Kích hoạt Timer bắt đầu tạo ngắt lấy mẫu
   printOk("ARMED");
 }
 
+/*
+ * Dừng quá trình lấy mẫu logic.
+ */
 static void stopCapture(void) {
 #if LA_DMA_CAPTURE_COMPILED
   if (activeCaptureEngine == LA_CAPTURE_MODE_TIMER_DMA_GPIO_IDR) {
@@ -735,10 +901,13 @@ static void stopCapture(void) {
     captureContext.status.state = LA_CAPTURE_IDLE;
   }
   activeCaptureEngine = LA_CAPTURE_MODE_TIMER_ISR_DIRECT;
-  digitalWrite(LED_BUILTIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);               // Tắt đèn LED báo hiệu
   printOk("STOPPED");
 }
 
+/*
+ * Gửi toàn bộ dữ liệu gói tin logic đã thu được về PC.
+ */
 static void dumpFrame(void) {
   if (isCaptureActive()) {
     printError("BUSY");
@@ -751,8 +920,10 @@ static void dumpFrame(void) {
     return;
   }
 
+  /* Chuẩn hóa sắp xếp lại bộ đệm pre-trigger ring buffer */
   la_capture_finalize_after_stop(&captureContext);
   la_frame_result_t result;
+  /* Dựng Header cho frame */
   const la_error_t err = la_build_frame_header(
       &captureContext, frameHeaderStorage, LA_FRAME_HEADER_LENGTH, &result);
   if (err != LA_ERROR_NONE) {
@@ -760,7 +931,10 @@ static void dumpFrame(void) {
     return;
   }
 
-  // DUMP thanh cong chi gui byte SLA8, khong chen text de host parse an toan.
+  /*
+   * Truyền nhị phân phần Header sau đó tới vùng dữ liệu mẫu đo.
+   * Không in ra văn bản text thừa để PC nhận diện frame thô ổn định nhất.
+   */
   la_board_write_bytes_blocking_after_capture(frameHeaderStorage,
                                               LA_FRAME_HEADER_LENGTH);
   la_board_write_bytes_blocking_after_capture(captureStorage,
@@ -773,6 +947,9 @@ static uint32_t parseUnsigned(const char *text, bool *ok) {
   return value;
 }
 
+/*
+ * Chuyển đổi toàn bộ chuỗi ký tự sang chữ in hoa.
+ */
 static void uppercaseCommand(char *text) {
   while (*text != '\0') {
     *text = (char)toupper((unsigned char)*text);
@@ -780,14 +957,17 @@ static void uppercaseCommand(char *text) {
   }
 }
 
+/*
+ * Phân tích và xử lý các lệnh văn bản nhận được từ PC.
+ */
 static void handleCommand(char *cmd) {
   uppercaseCommand(cmd);
 
   if (isCaptureActive()) {
+    /* Khi đang lấy mẫu, chỉ chấp nhận lệnh STOP hoặc STATUS tối giản để tránh gián đoạn ngắt */
     if (strcmp(cmd, "STOP") == 0) {
       stopCapture();
     } else if (strcmp(cmd, "STATUS") == 0) {
-      // Khi dang capture chi tra loi rat ngan de khong canh tranh CPU/UART.
       AnalyzerSerial.println("STATUS BUSY");
       AnalyzerSerial.println("END STATUS");
     } else {
@@ -885,6 +1065,9 @@ static void handleCommand(char *cmd) {
   }
 }
 
+/*
+ * Đọc dữ liệu cổng Serial và ghép nối các ký tự tạo thành dòng lệnh hoàn chỉnh.
+ */
 static void pollCommandInput(void) {
   while (AnalyzerSerial.available() > 0) {
     const char c = (char)AnalyzerSerial.read();
@@ -904,18 +1087,16 @@ static void pollCommandInput(void) {
 }
 
 /*
- * Ghi de SystemClock_Config WEAK cua core STM32duino (mac dinh chay HSI 64 MHz).
- * Uu tien thach anh ngoai HSE 8 MHz x9 = 72 MHz de dat do chinh xac ~30 ppm
- * thay vi HSI ~1%. Neu HSE khong khoi dong (thieu/hong thach anh) thi tu quay
- * ve dung HSI 64 MHz nhu cu, board van boot binh thuong.
- * Kiem tra sau khi nap: lenh INFO in TIMER_CLOCK = 72000000 => chay HSE;
- * neu van 64000000 => da fallback HSI (kiem tra lai thach anh/tu dien tai).
+ * Cấu hình hệ thống đồng hồ Clock cho vi điều khiển (SystemClock_Config).
+ * Hàm này ghi đè cấu hình WEAK mặc định của thư viện STM32duino (thường chỉ dùng HSI 64 MHz).
+ * Ưu tiên: Sử dụng thạch anh ngoài HSE 8 MHz nhân PLL với 9 để đạt tần số 72 MHz chuẩn xác (độ lệch ~30ppm).
+ * Nếu thạch anh hỏng/không gắn, hệ thống tự động fallback về bộ dao động nội HSI 64 MHz an toàn.
  */
 extern "C" void SystemClock_Config(void) {
   RCC_OscInitTypeDef osc = {};
   RCC_ClkInitTypeDef clk = {};
 
-  // --- Uu tien: HSE 8 MHz -> PLL x9 -> 72 MHz ---
+  // --- Ưu tiên: Kích hoạt thạch anh ngoài HSE 8 MHz -> PLL x9 -> Hệ thống 72 MHz ---
   osc.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   osc.HSEState = RCC_HSE_ON;
   osc.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -927,15 +1108,15 @@ extern "C" void SystemClock_Config(void) {
     clk.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
                     RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     clk.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    clk.AHBCLKDivider = RCC_SYSCLK_DIV1;   // HCLK  = 72 MHz
-    clk.APB1CLKDivider = RCC_HCLK_DIV2;    // PCLK1 = 36 MHz -> TIM2 = 72 MHz
+    clk.AHBCLKDivider = RCC_SYSCLK_DIV1;   // HCLK = 72 MHz
+    clk.APB1CLKDivider = RCC_HCLK_DIV2;    // PCLK1 = 36 MHz (tần số TIM2 cấp nhịp = PCLK1 * 2 = 72 MHz)
     clk.APB2CLKDivider = RCC_HCLK_DIV1;    // PCLK2 = 72 MHz
     if (HAL_RCC_ClockConfig(&clk, FLASH_LATENCY_2) == HAL_OK) {
-      return;  // Chay bang thach anh thanh cong.
+      return;  // Cấu hình bằng thạch anh HSE thành công
     }
   }
 
-  // --- Fallback an toan: HSI/2 -> PLL x16 -> 64 MHz (giong mac dinh core) ---
+  // --- Fallback dự phòng: Bộ dao động nội HSI/2 -> PLL x16 -> Hệ thống 64 MHz ---
   osc = RCC_OscInitTypeDef{};
   osc.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   osc.HSIState = RCC_HSI_ON;
@@ -954,18 +1135,25 @@ extern "C" void SystemClock_Config(void) {
   (void)HAL_RCC_ClockConfig(&clk, FLASH_LATENCY_2);
 }
 
+/*
+ * Hàm thiết lập khởi động ban đầu của Arduino Sketch.
+ */
 void setup(void) {
-  la_board_init();
+  la_board_init();                              // Khởi tạo phần cứng bo mạch (UART, GPIO...)
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-  la_capture_init(&captureContext);
-  setRate(LA_DEFAULT_SAMPLE_RATE_HZ);
-  AnalyzerSerial.println("READY SLA8");
+  digitalWrite(LED_BUILTIN, LOW);               // Tắt LED báo hiệu
+  la_capture_init(&captureContext);             // Khởi tạo máy trạng thái capture
+  setRate(LA_DEFAULT_SAMPLE_RATE_HZ);           // Thiết lập tần số lấy mẫu mặc định
+  AnalyzerSerial.println("READY SLA8");         // Gửi thông báo sẵn sàng về PC
 }
 
+/*
+ * Vòng lặp chính của chương trình.
+ */
 void loop(void) {
-  pollCommandInput();
+  pollCommandInput();                           // Quét nhận các lệnh từ UART
 
+  /* Nếu phát hiện phiên capture đã hoàn tất/kết thúc */
   if (terminalStateSeen) {
 #if LA_DMA_CAPTURE_COMPILED
     const bool wasDma =
@@ -973,15 +1161,19 @@ void loop(void) {
 #else
     const bool wasDma = false;
 #endif
+    /* Tạm thời khóa ngắt để cập nhật biến trạng thái an toàn */
     noInterrupts();
     terminalStateSeen = false;
     interrupts();
-    la_board_timer_stop();
+    
+    la_board_timer_stop();                      // Dừng Timer
     if (!wasDma) {
+      /* Nếu chạy chế độ ngắt, tiến hành sắp xếp chuẩn hóa lại bộ đệm pre-trigger */
       la_capture_finalize_after_stop(&captureContext);
     }
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, LOW);             // Tắt đèn LED báo hiệu bận
 
+    /* Báo sự kiện kết thúc trạng thái đo về máy tính */
     AnalyzerSerial.print("EVENT ");
     AnalyzerSerial.println(captureStateName(captureContext.status.state));
   }

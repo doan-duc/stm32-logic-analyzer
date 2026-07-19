@@ -73,13 +73,13 @@ Giải mã giao thức & Khuyến khích UART/I2C/SPI. & Phần mềm hỗ trợ
 
 \section{Phạm vi thực hiện}\label{phux1ea1m-vi-thux1ef1c-hiux1ec7n}
 
-Phạm vi đề tài gồm firmware STM32, giao thức khung SLA8, phần mềm máy tính, các bộ giải mã UART, I2C, SPI và chương trình tạo tín hiệu kiểm thử trên Arduino UNO. Phần đánh giá dựa trên kiểm thử HIL thực hiện ngày 18/7/2026.
+Phạm vi đề tài gồm firmware STM32, giao thức khung SLA8, phần mềm máy tính, các bộ giải mã UART, I2C, SPI và chương trình tạo tín hiệu kiểm thử trên Arduino UNO.
 
 \chapter{CƠ SỞ LÝ THUYẾT VÀ GIẢI PHÁP}\label{chap:theory}
 
 \section{Nền tảng STM32F103C8 và hệ thống xung nhịp}\label{sec:stm32-clock}
 
-Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng Arduino và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL ngày 18/7/2026 xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz \cite{hil2026}.
+Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng Arduino và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz \cite{hil2026}.
 
 Với nguồn HSE và PLL, quan hệ tổng quát của xung nhịp hệ thống là \(f_{\mathrm{SYSCLK}}=f_{\mathrm{HSE}}\times M\), sau đó \(f_{\mathrm{HCLK}}=f_{\mathrm{SYSCLK}}/\mathrm{HPRE}\). Xung nhịp TIM2 phụ thuộc bộ chia APB1: \(f_{\mathrm{TIM2}}=f_{\mathrm{PCLK1}}\) khi APB1 không chia và \(f_{\mathrm{TIM2}}=2f_{\mathrm{PCLK1}}\) khi hệ số chia APB1 lớn hơn 1 \cite{st-rm0008}. Với bộ chia \(PSC\) và thanh ghi tự nạp lại \(ARR\), tần số lấy mẫu được xác định bởi
 \[
@@ -714,7 +714,7 @@ Kết quả cho thấy xung TIM2 đạt 72~MHz; oracle Gray đạt ở cơ chế
 \addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
 \bibitem{course} Tài liệu học phần Bài tập lớn Hệ thống nhúng và thiết kế giao tiếp nhúng, học kỳ 2025.2.
 \bibitem{repo} Mã nguồn dự án thiết bị phân tích logic tám kênh: \texttt{platformio.ini}, \texttt{src/firmware}, \texttt{src/software} và \texttt{tests}.
-\bibitem{hil2026} Nhóm thực hiện, \emph{Kết quả HIL trên STM32F103C8 chạy thạch anh HSE 72~MHz}, ngày 18/7/2026, \path{report/generated/hil_72mhz_summary.md}.
+\bibitem{hil2026} Nhóm thực hiện, \emph{Kết quả HIL trên STM32F103C8 chạy thạch anh HSE 72~MHz}, \path{report/generated/hil_72mhz_summary.md}.
 \bibitem{st-ds5319} STMicroelectronics, \emph{STM32F103x8/xB medium-density performance line}, DS5319 Rev. 20. \href{https://www.st.com/resource/en/datasheet/CD00161566.pdf}{ST DS5319 (PDF)}.
 \bibitem{st-rm0008} STMicroelectronics, \emph{RM0008: STM32F10xxx reference manual}, Rev. 21. \href{https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101xx-stm32f102xx-stm32f103xx-stm32f105xx-and-stm32f107xx-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf}{ST RM0008 (PDF)}.
 \bibitem{shannon1949} C. E. Shannon, “Communication in the Presence of Noise,” \emph{Proceedings of the IRE}, vol. 37, no. 1, pp. 10--21, 1949.
