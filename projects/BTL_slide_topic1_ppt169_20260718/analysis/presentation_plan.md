@@ -18,6 +18,6 @@ Trạng thái: confirmed
 14. Đối chiếu yêu cầu — các chỉ tiêu chính và 10/10 kịch bản đạt.
 15. Hạn chế, hướng phát triển và kết luận.
 
-Nguồn sự thật chính: `content.tex`, `metrics.json`, mã nguồn và ảnh HIL ngày 18/07/2026.
+Nguồn sự thật chính: `content.tex`, `metrics.json`, mã nguồn và ảnh HIL.
 Không dùng các kết luận cũ trong `evidence_map.md` về trần 1 MS/s.
 Không tuyên bố chế độ Arduino phát đồng thời UART/I2C/SPI đã được kiểm chứng.

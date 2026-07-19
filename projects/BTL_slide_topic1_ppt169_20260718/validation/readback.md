@@ -556,7 +556,7 @@ Toàn bộ kịch bản đạt
 
 Từ chối rate/cấu hình sai
 
-Kết quả được chốt từ metrics.json và capture .sla8 ngày 18/07/2026.
+Kết quả được chốt từ metrics.json và capture .sla8.
 
 THIẾT BỊ LOGIC ANALYZER 8 KÊNH
 

@@ -294,18 +294,46 @@ def _replace_block(latex: str, start: str, end: str, replacement: str) -> str:
 
 
 def _front_matter() -> str:
-    return r"""\documentclass[12pt,a4paper,oneside]{report}
-\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=2cm]{geometry}
+    return r"""% !TeX program = xelatex
+% !TeX encoding = UTF-8
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage[a4paper,top=2cm,bottom=2cm,left=2.5cm,right=2.5cm]{geometry}
 \usepackage{fontspec}
 \setmainfont{Times New Roman}
 \setsansfont{Times New Roman}
 \setmonofont{Times New Roman}
+\usepackage{anyfontsize}
 \usepackage[fontsize=13]{fontsize}
 \changefontsize[14.3]{13}
 \usepackage{graphicx}
+\let\originalincludegraphics\includegraphics
+\RenewDocumentCommand{\includegraphics}{O{}m}{%
+  \IfFileExists{#2}{%
+    \originalincludegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox[c][4.8cm][c]{0.88\linewidth}{%
+      \centering\small
+      Hình minh chứng chưa được đính kèm trong workspace.\\[4pt]
+      \path{#2}%
+    }}%
+  }%
+}
 \usepackage{amsmath}
+\usepackage{unicode-math}
+\setmathfont{Latin Modern Math}
 \usepackage{xcolor}
-\usepackage{longtable,array,calc,tabularx}
+\usepackage{longtable}[=v4.13]
+\usepackage{array,calc,tabularx}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\makeatletter
+\long\def\LT@p@ftntext#1{%
+  \edef\@tempa{%
+    \the\LT@p@ftn
+    \noexpand\footnotetext[\the\c@footnote]%
+  }%
+  \global\LT@p@ftn\expandafter{\@tempa{#1}}%
+}
+\makeatother
 \usepackage{caption}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
@@ -331,6 +359,12 @@ def _front_matter() -> str:
 \renewcommand{\contentsname}{MỤC LỤC}
 \renewcommand{\listfigurename}{DANH MỤC HÌNH VẼ}
 \renewcommand{\listtablename}{DANH MỤC BẢNG BIỂU}
+\renewcommand{\cfttoctitlefont}{\hfill\bfseries\fontsize{20pt}{14pt}\selectfont}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\bfseries\fontsize{20pt}{14pt}\selectfont}
+\renewcommand{\cftafterloftitle}{\hfill}
+\renewcommand{\cftlottitlefont}{\hfill\bfseries\fontsize{20pt}{14pt}\selectfont}
+\renewcommand{\cftafterlottitle}{\hfill}
 \captionsetup[table]{position=top,font={small,it},justification=centering,labelsep=space}
 \captionsetup[figure]{position=bottom,font={small,it},justification=centering,labelsep=space}
 \AtBeginEnvironment{longtable}{\normalsize\setlength{\tabcolsep}{5.4pt}\renewcommand{\arraystretch}{1.12}}
@@ -353,25 +387,72 @@ def _front_matter() -> str:
 \renewcommand{\headrulewidth}{0pt}
 \newcommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \begin{document}
+\hypersetup{pageanchor=false}
+\pagenumbering{gobble}
+% ```latex
 \begin{titlepage}
+\thispagestyle{empty}
+\setlength{\parskip}{0pt}
+
+\begin{tikzpicture}[remember picture,overlay]
+\draw[line width=1.2pt]
+  ([xshift=1.2cm,yshift=-1.2cm]current page.north west)
+  rectangle
+  ([xshift=-1.2cm,yshift=1.2cm]current page.south east);
+
+\draw[line width=0.4pt]
+  ([xshift=1.38cm,yshift=-1.38cm]current page.north west)
+  rectangle
+  ([xshift=-1.38cm,yshift=1.38cm]current page.south east);
+
+\node[anchor=south,font=\normalsize]
+  at ([yshift=1.65cm]current page.south) {Hà Nội, 7-2026};
+\end{tikzpicture}
+
 \centering
-{\bfseries\fontsize{15pt}{18pt}\selectfont ĐẠI HỌC BÁCH KHOA HÀ NỘI\par}
-\vspace{3pt}
-{\bfseries\fontsize{15pt}{18pt}\selectfont TRƯỜNG ĐIỆN -- ĐIỆN TỬ\par}
-\vspace{0.4cm}
-\includegraphics[width=2.63cm,height=3.94cm]{media/image1.png}\par
-\vfill
-{\bfseries\fontsize{25pt}{30pt}\selectfont BÁO CÁO BÀI TẬP LỚN\par}
+
+\vspace*{0.6cm}
+
+{\bfseries\fontsize{25pt}{28pt}\selectfont
+ĐẠI HỌC BÁCH KHOA HÀ NỘI\\
+TRƯỜNG ĐIỆN -- ĐIỆN TỬ\par}
+
+\vspace{0.2cm}
+
+\includegraphics[width=2.63cm,height=3.94cm]{../media/image1.png}\par
+
+\vspace*{1.5cm}
+
+{\bfseries\fontsize{25pt}{30pt}\selectfont
+BÁO CÁO BÀI TẬP LỚN\par}
+
 \vspace{0.7cm}
-{\bfseries\fontsize{23pt}{27.6pt}\selectfont THIẾT KẾ VÀ XÂY DỰNG THIẾT BỊ\\ LOGIC ANALYZER ĐƠN GIẢN\par}
+
+{\bfseries\fontsize{20pt}{18pt}\selectfont
+Môn học: HỆ THỐNG NHÚNG\par}
+{\bfseries\fontsize{20pt}{18pt}\selectfont
+VÀ THIẾT KẾ GIAO TIẾP NHÚNG\par}
 \vspace{0.5cm}
-{\bfseries Đề tài 1: Thiết kế và xây dựng thiết bị Logic Analyzer đơn giản\par}
-\vfill
+
+
+
+{\bfseries\fontsize{18pt}{18pt}\selectfont
+Đề tài 1: Thiết kế và xây dựng thiết bị\par}
+
+{\bfseries\fontsize{18pt}{18pt}\selectfont
+Logic Analyzer đơn giản\par}
+\vspace*{1.0cm}
+
+{\bfseries\fontsize{18pt}{30pt}\selectfont
+Nhóm 13 - Mã lớp học 168057 - K68\par}
 \renewcommand{\arraystretch}{1.35}
-\begin{tabularx}{0.88\textwidth}{|p{0.31\textwidth}|X|}
+
+\vspace*{1.0cm}
+\begin{tabularx}{0.80\textwidth}
+{|>{\raggedright\arraybackslash}m{0.31\textwidth}|>{\centering\arraybackslash}X|}
 \hline
 \textbf{Sinh viên thực hiện:} &
-\begin{tabular}[t]{@{}l@{}}
+\begin{tabular}{@{}c@{}}
 Đoàn Sinh Đức -- 20234000\\
 Phạm Đăng Vinh -- 20233719\\
 Vũ Mạnh Quân -- 20234033\\
@@ -381,10 +462,14 @@ Vũ Nam Khánh -- 20234015
 \textbf{Giảng viên hướng dẫn:} & TS. Đào Việt Hùng\\
 \hline
 \end{tabularx}
-\vfill
-Hà Nội, 7-2026\par
-\end{titlepage}
 
+\vfill
+
+\end{titlepage}
+% ```
+
+
+\hypersetup{pageanchor=true}
 \pagenumbering{roman}
 \tableofcontents
 \clearpage

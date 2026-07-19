@@ -1,4 +1,4 @@
-# SPI open-drain TDD/HIL evidence — 18/07/2026
+# SPI open-drain TDD/HIL evidence
 
 - RED: native generator test failed because `GENERATOR_SPI_OPEN_DRAIN` was undefined.
 - GREEN: SPI output was changed from push-pull to open-drain; the same native test compiled and passed.

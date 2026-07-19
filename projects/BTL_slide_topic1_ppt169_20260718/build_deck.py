@@ -380,7 +380,7 @@ def build():
     for i,(a,b,c) in enumerate(cards):
         row=i//3; col=i%3
         add_card(s, 0.9+col*6.25, 1.65+row*3.35, 5.65, 2.55, "✓  "+a, b, c, 21, 17)
-    add_text(s, "Kết quả được chốt từ metrics.json và capture .sla8 ngày 18/07/2026.", 3.0, 8.85, 14.0, 0.5, 17, NAVY, True, PP_ALIGN.CENTER)
+    add_text(s, "Kết quả được chốt từ metrics.json và capture .sla8.", 3.0, 8.85, 14.0, 0.5, 17, NAVY, True, PP_ALIGN.CENTER)
     set_notes(s, "Mẫu thử vượt yêu cầu tối thiểu về số kênh và giữ được mức một kilohertz ở đầu dải. Giao diện hiển thị đủ tám kênh, ba decoder đều có bằng chứng vật lý và toàn bộ mười kịch bản kiểm thử đạt. Các trường hợp vượt giới hạn được từ chối thay vì âm thầm sinh dữ liệu sai.")
 
     # 15. Limitations/conclusion

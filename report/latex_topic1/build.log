@@ -34,6 +34,8 @@ ec-xetex.sty
 y)
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontsp
 ec.cfg)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/anyfontsize\any
+fontsize.sty)
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontsize\fontsi
 ze.sty
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval
@@ -66,6 +68,18 @@ sty))
 sty)
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.
 sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/unicode-math\un
+icode-math.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/unicode-math\un
+icode-math-xetex.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/l3ke
+ys2e\l3keys2e.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/base\fix-cm.sty
+
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/base\ts1enc.def
+))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/unicode-math\un
+icode-math-table.tex)))
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.s
 ty
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\co
@@ -73,7 +87,9 @@ lor.cfg)
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathco
 lor.ltx))
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable
-.sty)
+.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable
+-2020-01-07.sty))
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
 )
 (C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty)
@@ -294,27 +310,14 @@ Chapter 1.
 Chapter 2.
 [3] [4]
 Chapter 3.
-content.tex:208: ignored: Infinite glue shrinkage found in box being split
-[5]
-content.tex:268: ignored: Infinite glue shrinkage found in box being split
-[6]
-content.tex:310: ignored: Infinite glue shrinkage found in box being split
-[7] [8]
+[5] [6] [7] [8]
 Chapter 4.
 [9] [10] [11] [12] [13] [14] [15] [16] [17]
 Chapter 5.
 [18]
 Chapter 6.
-[19]) [20] (Bao_cao_Topic_1_Doan_Sinh_Duc.aux)
-
-LaTeX Font Warning: Size substitutions with differences
-(Font)              up to 1.0pt have occurred.
-
- )
+[19]) [20] (Bao_cao_Topic_1_Doan_Sinh_Duc.aux) )
+(see the transcript file for additional information)
 Output written on Bao_cao_Topic_1_Doan_Sinh_Duc.pdf (25 pages).
 Transcript written on Bao_cao_Topic_1_Doan_Sinh_Duc.log.
 
-log4cxx: setFile(C:\Users\DOAN SINH DUC\AppData\Local\MiKTeX\miktex\log/xelatex.log,true) call failed.
-log4cxx: IO Exception : status code = 720005(Access is denied.  )
-log4cxx: setFile(C:\Users\DOAN SINH DUC\AppData\Local\MiKTeX\miktex\log/miktex-dvipdfmx.log,true) call failed.
-log4cxx: IO Exception : status code = 720005(Access is denied.  )
