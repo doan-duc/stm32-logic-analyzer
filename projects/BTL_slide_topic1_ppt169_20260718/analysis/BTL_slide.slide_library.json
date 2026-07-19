@@ -1,0 +1,89 @@
+{
+  "schema": "template_fill_pptx_library.v1",
+  "source_pptx": "D:\\BTL_HTN_v2\\projects\\BTL_slide_topic1_ppt169_20260718\\sources\\BTL_slide.pptx",
+  "slide_count": 2,
+  "canvas_px": {
+    "width": 1920,
+    "height": 1080
+  },
+  "slides": [
+    {
+      "slide_index": 1,
+      "page_type": "cover_candidate",
+      "text_summary": "",
+      "slots": [],
+      "tables": [],
+      "charts": []
+    },
+    {
+      "slide_index": 2,
+      "page_type": "ending_candidate",
+      "text_summary": "TRƯỜNG ĐẠI HỌC BÁCH KHOA HÀ NỘI\nHANOI UNIVERSITY OF SCIENCE AND TECHNOLOGY",
+      "slots": [
+        {
+          "slot_id": "s02_sh10",
+          "role": "title_candidate",
+          "text": "TRƯỜNG ĐẠI HỌC BÁCH KHOA HÀ NỘI\nHANOI UNIVERSITY OF SCIENCE AND TECHNOLOGY",
+          "paragraph_count": 2,
+          "geometry": {
+            "x": 0,
+            "y": -2,
+            "width": 692,
+            "height": 108
+          },
+          "text_metrics": {
+            "font_size_px": 24.01,
+            "paragraph_count": 2
+          }
+        }
+      ],
+      "tables": [],
+      "charts": []
+    }
+  ],
+  "plan_contract": {
+    "schema": "template_fill_pptx_plan.v1",
+    "slides": [
+      {
+        "source_slide": 1,
+        "purpose": "封面 / 章节 / 内容 / 结尾",
+        "replacements": [
+          {
+            "slot_id": "s01_sh2",
+            "text": "替换后的文字"
+          }
+        ],
+        "table_edits": [
+          {
+            "table_id": "s01_tbl3",
+            "cells": [
+              {
+                "row": 0,
+                "col": 0,
+                "text": "替换后的单元格"
+              }
+            ]
+          }
+        ],
+        "chart_edits": [
+          {
+            "chart_id": "s01_ch4",
+            "categories": [
+              "A",
+              "B"
+            ],
+            "series": [
+              {
+                "name": "系列1",
+                "values": [
+                  1,
+                  2
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

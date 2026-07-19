@@ -34,6 +34,12 @@ static void test_72mhz_timer_clock(void) {
   assert(plan.actual_sample_rate_hz == 100000UL);
   assert(plan.prescaler == 0U);
   assert(plan.autoreload == 719U);
+
+  // 72 MHz / 11 = tran DMA da kiem chung HIL (thach anh HSE).
+  assert(la_board_calculate_timer_plan(72000000UL, 6545454UL, &plan));
+  assert(plan.actual_sample_rate_hz == 6545454UL);
+  assert(plan.prescaler == 0U);
+  assert(plan.autoreload == 10U);
 }
 
 static void test_invalid_input(void) {
@@ -41,15 +47,15 @@ static void test_invalid_input(void) {
 
   assert(!la_board_calculate_timer_plan(0U, 100000UL, &plan));
   assert(!la_board_calculate_timer_plan(64000000UL, 0U, &plan));
-  assert(!la_board_calculate_timer_plan(64000000UL, 5818183UL, &plan));
+  assert(!la_board_calculate_timer_plan(64000000UL, 6545455UL, &plan));
   assert(!la_board_calculate_timer_plan(64000000UL, 100000UL, 0));
 }
 
 static void test_verified_engine_rate_limits(void) {
   assert(la_board_sample_rate_supported(400000UL, false));
   assert(!la_board_sample_rate_supported(400001UL, false));
-  assert(la_board_sample_rate_supported(5818182UL, true));
-  assert(!la_board_sample_rate_supported(5818183UL, true));
+  assert(la_board_sample_rate_supported(6545454UL, true));
+  assert(!la_board_sample_rate_supported(6545455UL, true));
 }
 
 static void test_strict_u32_parser(void) {

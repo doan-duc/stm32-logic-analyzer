@@ -1,0 +1,592 @@
+\begin{quote}
+ĐẠI HỌC BÁCH KHOA HÀ NỘI
+
+\textbf{TRƯỜNG ĐIỆN - ĐIỆN TỬ}
+
+\includegraphics[width=1.03333in,height=1.55in]{D:/BTL_HTN_v2/report/latex_topic1/media/image1.png}
+
+\textbf{BÁO CÁO BÀI TẬP LỚN}
+
+\textbf{THIẾT KẾ VÀ XÂY DỰNG THIẾT BỊ LOGIC ANALYZER ĐƠN GIẢN}
+
+Đề tài 1: ...
+\end{quote}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.3962}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.4085}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Sinh viên thực hiện:}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Đoàn Sinh Đức 20234000}
+
+\textbf{Phạm Đăng Vinh: 20233719}
+
+\textbf{Vũ Mạnh Quân: 20234033}
+
+\textbf{Vũ Nam Khánh: 20234015}
+
+\textbf{{[}CẦN BỔ SUNG: MSSV{]}}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Người hướng dẫn:} & \textbf{{[}CẦN BỔ SUNG: tên giảng viên{]}} \\
+\end{longtable}
+}
+
+\-\-
+
+\begin{quote}
+Hà Nội, 7-2026
+\end{quote}
+
+\textbf{\hfill\break
+MỤC LỤC}
+
+\hyperref[danh-mux1ee5c-huxecnh-vux1ebd]{DANH MỤC HÌNH VẼ \hyperref[danh-mux1ee5c-huxecnh-vux1ebd]{4}}
+
+\hyperref[tux1ed5ng-quan-vuxe0-mux1ee5c-tiuxeau-dux1ef1-uxe1n]{1. TỔNG QUAN VÀ MỤC TIÊU DỰ ÁN \hyperref[tux1ed5ng-quan-vuxe0-mux1ee5c-tiuxeau-dux1ef1-uxe1n]{5}}
+
+\hyperref[ux111ux1eb7t-vux1ea5n-ux111ux1ec1]{1.1 Đặt vấn đề \hyperref[ux111ux1eb7t-vux1ea5n-ux111ux1ec1]{5}}
+
+\hyperref[mux1ee5c-tiuxeau-thiux1ebft-kux1ebf]{1.2 Mục tiêu thiết kế \hyperref[mux1ee5c-tiuxeau-thiux1ebft-kux1ebf]{5}}
+
+\hyperref[yuxeau-cux1ea7u-cux1ee7a-topic-1-chux1ec9-tiuxeau-chux1ee9c-nux103ng-chux1ec9-tiuxeau-phi-chux1ee9c-nux103ng]{1.3 Yêu cầu của Topic 1 \hyperref[yuxeau-cux1ea7u-cux1ee7a-topic-1-chux1ec9-tiuxeau-chux1ee9c-nux103ng-chux1ec9-tiuxeau-phi-chux1ee9c-nux103ng]{5}}
+
+\hyperref[phux1ea1m-vi-thux1ef1c-hiux1ec7n]{1.4 Phạm vi thực hiện \hyperref[phux1ea1m-vi-thux1ef1c-hiux1ec7n]{6}}
+
+\hyperref[cux1a1-sux1edf-luxfd-thuyux1ebft-vuxe0-giux1ea3i-phuxe1p]{2. CƠ SỞ LÝ THUYẾT VÀ GIẢI PHÁP \hyperref[cux1a1-sux1edf-luxfd-thuyux1ebft-vuxe0-giux1ea3i-phuxe1p]{6}}
+
+\hyperref[nguyuxean-luxfd-logic-analyzer]{2.1 Nguyên lý logic analyzer \hyperref[nguyuxean-luxfd-logic-analyzer]{6}}
+
+\hyperref[tux1ed1c-ux111ux1ed9-lux1ea5y-mux1eabu-vuxe0-aliasing-cuxf3-cuxf4ng-thux1ee9c-ux111ux1ecbnh-luxfd-nyquist-ruxf5-thuxeam-vux1ec1-aliasing]{2.2 Tốc độ lấy mẫu và aliasing \hyperref[tux1ed1c-ux111ux1ed9-lux1ea5y-mux1eabu-vuxe0-aliasing-cuxf3-cuxf4ng-thux1ee9c-ux111ux1ecbnh-luxfd-nyquist-ruxf5-thuxeam-vux1ec1-aliasing]{6}}
+
+\hyperref[quan-hux1ec7-timing-giux1eefa-cuxe1c-kuxeanh]{2.3 Quan hệ timing giữa các kênh \hyperref[quan-hux1ec7-timing-giux1eefa-cuxe1c-kuxeanh]{7}}
+
+\hyperref[giao-thux1ee9c-truyux1ec1n-dux1eef-liux1ec7u-sau-capture]{2.4 Giao thức truyền dữ liệu sau capture \hyperref[giao-thux1ee9c-truyux1ec1n-dux1eef-liux1ec7u-sau-capture]{7}}
+
+\hyperref[thiux1ebft-kux1ebf-hux1ec7-thux1ed1ng]{3. THIẾT KẾ HỆ THỐNG \hyperref[thiux1ebft-kux1ebf-hux1ec7-thux1ed1ng]{7}}
+
+\hyperref[kiux1ebfn-truxfac-tux1ed5ng-thux1ec3]{3.1 Kiến trúc tổng thể \hyperref[kiux1ebfn-truxfac-tux1ed5ng-thux1ec3]{7}}
+
+\hyperref[thiux1ebft-kux1ebf-phux1ea7n-cux1ee9ng]{3.2 Thiết kế phần cứng \hyperref[thiux1ebft-kux1ebf-phux1ea7n-cux1ee9ng]{7}}
+
+\hyperref[thiux1ebft-kux1ebf-firmware]{3.3 Thiết kế firmware \hyperref[thiux1ebft-kux1ebf-firmware]{8}}
+
+\hyperref[luux1ed3ng-houx1ea1t-ux111ux1ed9ng-firmware-sux1a1-ux111ux1ed3-khux1ed1i-houx1ea1t-ux111ux1ed9ng]{3.4 Luồng hoạt động firmware \hyperref[luux1ed3ng-houx1ea1t-ux111ux1ed9ng-firmware-sux1a1-ux111ux1ed3-khux1ed1i-houx1ea1t-ux111ux1ed9ng]{9}}
+
+\hyperref[thiux1ebft-kux1ebf-phux1ea7n-mux1ec1m-pc]{3.5 Thiết kế phần mềm PC \hyperref[thiux1ebft-kux1ebf-phux1ea7n-mux1ec1m-pc]{9}}
+
+\hyperref[giao-thux1ee9c-ux111iux1ec1u-khiux1ec3n]{3.6 Giao thức điều khiển \hyperref[giao-thux1ee9c-ux111iux1ec1u-khiux1ec3n]{9}}
+
+\hyperref[cuxf4ng-cux1ee5-tux1ea1o-tuxedn-hiux1ec7u-thux1eed]{3.7 Công cụ tạo tín hiệu thử \hyperref[cuxf4ng-cux1ee5-tux1ea1o-tuxedn-hiux1ec7u-thux1eed]{10}}
+
+\hyperref[triux1ec3n-khai-vuxe0-kiux1ec3m-thux1eed]{4. TRIỂN KHAI VÀ KIỂM THỬ \hyperref[triux1ec3n-khai-vuxe0-kiux1ec3m-thux1eed]{10}}
+
+\hyperref[cux1ea5u-huxecnh-build]{4.1 Cấu hình build \hyperref[cux1ea5u-huxecnh-build]{10}}
+
+\hyperref[kux1ecbch-bux1ea3n-thux1eed-nghiux1ec7m]{4.2 Kịch bản thử nghiệm \hyperref[kux1ecbch-bux1ea3n-thux1eed-nghiux1ec7m]{10}}
+
+\hyperref[khung-kux1ebft-quux1ea3-ux111o]{4.3 Khung kết quả đo \hyperref[khung-kux1ebft-quux1ea3-ux111o]{11}}
+
+\hyperref[ux111uxe1nh-giuxe1-vuxe0-thux1ea3o-luux1eadn]{5. ĐÁNH GIÁ VÀ THẢO LUẬN \hyperref[ux111uxe1nh-giuxe1-vuxe0-thux1ea3o-luux1eadn]{12}}
+
+\hyperref[mux1ee9c-ux111ux1ed9-houxe0n-thuxe0nh-theo-thiux1ebft-kux1ebf]{5.1 Mức độ hoàn thành theo thiết kế \hyperref[mux1ee9c-ux111ux1ed9-houxe0n-thuxe0nh-theo-thiux1ebft-kux1ebf]{12}}
+
+\hyperref[hux1ea1n-chux1ebf]{5.2 Hạn chế \hyperref[hux1ea1n-chux1ebf]{12}}
+
+\hyperref[hux1b0ux1edbng-phuxe1t-triux1ec3n]{5.3 Hướng phát triển \hyperref[hux1b0ux1edbng-phuxe1t-triux1ec3n]{12}}
+
+\hyperref[kux1ebft-luux1eadn]{6. KẾT LUẬN \hyperref[kux1ebft-luux1eadn]{13}}
+
+\hyperref[tuxe0i-liux1ec7u-tham-khux1ea3o]{TÀI LIỆU THAM KHẢO \hyperref[tuxe0i-liux1ec7u-tham-khux1ea3o]{13}}
+
+\chapter{DANH MỤC HÌNH VẼ}\label{danh-mux1ee5c-huxecnh-vux1ebd}
+
+\hyperref[_Toc234276623]{Hình 1 Sơ đồ khối logic analyzer Topic 1 \hyperref[_Toc234276623]{7}}
+
+\hyperref[_Toc234276624]{Hình 2 Waveform cần bổ sung sau thực nghiệm \hyperref[_Toc234276624]{12}}
+
+Các hình minh họa cần được bổ sung bằng ảnh chụp phần cứng, sơ đồ nối dây và ảnh waveform sau khi hoàn tất chạy thử trên board.
+
+\chapter{TỔNG QUAN VÀ MỤC TIÊU DỰ ÁN}\label{tux1ed5ng-quan-vuxe0-mux1ee5c-tiuxeau-dux1ef1-uxe1n}
+
+\section{Đặt vấn đề}\label{ux111ux1eb7t-vux1ea5n-ux111ux1ec1}
+
+Trong thiết kế hệ thống nhúng, việc kiểm tra tín hiệu số không chỉ dừng ở mức xác định logic 0 hoặc 1 tại một thời điểm riêng lẻ. Nhiều lỗi giao tiếp xuất hiện do sai quan hệ thời gian giữa các kênh, sai thứ tự cạnh, thiếu xung đồng bộ hoặc dữ liệu truyền không đúng khung. Vì vậy, một thiết bị logic analyzer có khả năng ghi lại nhiều tín hiệu theo thời gian là công cụ quan trọng để quan sát, phân tích và kiểm chứng hoạt động của mạch số.
+
+Đề bài của học phần định hướng xây dựng một logic analyzer ở mức proof of concept. Với Topic 1, trọng tâm là phần cứng gọn nhẹ, chi phí thấp, số kênh và tốc độ không cần quá cao nhưng phải thể hiện được nguyên lý lấy mẫu, lưu đệm, truyền dữ liệu và hiển thị waveform trên PC hoặc màn hình cục bộ.
+
+\section{Mục tiêu thiết kế}\label{mux1ee5c-tiuxeau-thiux1ebft-kux1ebf}
+
+Hệ thống trong phiên bản hiện có được thiết kế theo hướng sử dụng vi điều khiển STM32 làm khối thu thập tín hiệu, lấy mẫu đồng thời 8 kênh số trên PA0..PA7, lưu dữ liệu dạng bit-packed trong RAM và truyền frame nhị phân SLA8 lên phần mềm PC qua UART. Phần mềm PC đảm nhiệm cấu hình tốc độ lấy mẫu, điều khiển capture, hiển thị waveform và giải mã UART/I2C cơ bản.
+
+Đáp ứng yêu cầu tối thiểu của Topic 1 về số kênh ở mức thiết kế mã nguồn: cấu hình hiện có là 8 kênh, lớn hơn yêu cầu tối thiểu 2 kênh.
+
+Cung cấp các mức sample rate trong giao diện từ 1 kHz đến 1 MHz, trong đó 1 kHz là mức tối thiểu theo đề bài.
+
+Tổ chức luồng capture offline: lấy mẫu trong một khoảng thời gian, lưu vào buffer, sau đó truyền dữ liệu để hiển thị và phân tích trên PC.
+
+Hỗ trợ khung giải mã UART và I2C, đồng thời để mở khả năng bổ sung các decoder khác như SPI.
+
+Phần trăm sử dụng AI
+
+\section{Yêu cầu của Topic 1 Chỉ tiêu chức năng/ Chỉ tiêu phi chức năng}\label{yuxeau-cux1ea7u-cux1ee7a-topic-1-chux1ec9-tiuxeau-chux1ee9c-nux103ng-chux1ec9-tiuxeau-phi-chux1ee9c-nux103ng}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Bảng 1 Tóm tắt yêu cầu và phạm vi đáp ứng}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Hạng mục
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Yêu cầu theo đề bài
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Phạm vi hiện có
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Hạng mục
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Yêu cầu theo đề bài
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Phạm vi hiện có
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Số kênh & Tối thiểu 2 kênh. & Mã nguồn cấu hình 8 kênh CH0..CH7. \\
+Tốc độ lấy mẫu & Tối thiểu 1 kHz. & Firmware/UI có cấu hình từ 1 kHz; cần đo thực tế trên board. \\
+Hiển thị & Waveform trên PC hoặc màn hình tối thiểu 128x64. & Ứng dụng PC PyQt5/pyqtgraph hiển thị 8 kênh. \\
+Timing & Luận giải độ chính xác quan hệ timing giữa các kênh. & Có cơ sở timer TIM2 và đọc GPIOA IDR một lần; cần bổ sung số đo jitter/skew. \\
+Decode giao thức & Khuyến khích UART/I2C/SPI. & Đã có UART/I2C decoder; chưa thấy SPI decoder. \\
+Bảo vệ đầu vào & Khuyến khích tích hợp mạch bảo vệ và nêu điều kiện bảo vệ. & Chưa có sơ đồ mạch bảo vệ được kiểm chứng. \\
+\end{longtable}
+
+\section{Phạm vi thực hiện}\label{phux1ea1m-vi-thux1ef1c-hiux1ec7n}
+
+Trong phạm vi hiện tại, hệ thống bao gồm firmware STM32, giao thức truyền frame SLA8, phần mềm PC, bộ giải mã UART/I2C và công cụ tạo tín hiệu thử bằng Arduino. Các kết quả đo phần cứng, ảnh demo và sơ đồ bảo vệ đầu vào là những nội dung cần hoàn thiện trước khi nộp chính thức.
+
+\chapter{CƠ SỞ LÝ THUYẾT VÀ GIẢI PHÁP}\label{cux1a1-sux1edf-luxfd-thuyux1ebft-vuxe0-giux1ea3i-phuxe1p}
+
+Cơ sở lý thuyết STM32,\\
+Xung thạch anh tới tốc độ xử lý của STM32
+
+Thêm ảnh mô tả Lý thuyết,\\
+VD ảnh giao thức, stm32, LA\\
+\strut \\
+Xem thuật toán khử nhiễu, aligsing
+
+\section{Nguyên lý logic analyzer}\label{nguyuxean-luxfd-logic-analyzer}
+
+Logic analyzer ghi nhận trạng thái số của nhiều kênh tại các thời điểm rời rạc. Khác với đồng hồ đo mức tĩnh, dữ liệu của logic analyzer cho phép quan sát chuỗi trạng thái theo thời gian, từ đó xác định độ rộng xung, khoảng thời gian giữa các cạnh và thứ tự sự kiện trên các đường tín hiệu.
+
+Trong cấu hình đơn giản, mỗi chu kỳ lấy mẫu tạo ra một snapshot gồm trạng thái của toàn bộ kênh đầu vào. Khi biết chu kỳ lấy mẫu, phần mềm có thể gán mốc thời gian cho từng mẫu và dựng lại waveform dạng bậc thang. Đây là hướng phù hợp với Topic 1 vì không yêu cầu truyền dữ liệu thời gian thực liên tục.
+
+\section{Tốc độ lấy mẫu và aliasing Có công thức, định lý Nyquist, rõ thêm về aliasing}\label{tux1ed1c-ux111ux1ed9-lux1ea5y-mux1eabu-vuxe0-aliasing-cuxf3-cuxf4ng-thux1ee9c-ux111ux1ecbnh-luxfd-nyquist-ruxf5-thuxeam-vux1ec1-aliasing}
+
+Tốc độ lấy mẫu quyết định độ phân giải thời gian của hệ thống. Nếu tín hiệu đầu vào biến đổi nhanh hơn khả năng lấy mẫu, waveform hiển thị có thể bỏ sót cạnh hoặc tạo nhận định sai về chu kỳ tín hiệu. Vì vậy, khi sử dụng thiết bị, cần chọn sample rate cao hơn đáng kể so với tần số biến thiên của tín hiệu cần quan sát.
+
+Trong phiên bản hiện tại, firmware trả về tốc độ lấy mẫu thực tế sau khi tính toán prescaler và autoreload của TIM2. Tuy nhiên, sai số timing cuối cùng còn phụ thuộc jitter ngắt, thời gian thực thi ISR và đặc tính board thực tế, nên các đại lượng này cần được đo bằng thực nghiệm.
+
+\section{Quan hệ timing giữa các kênh}\label{quan-hux1ec7-timing-giux1eefa-cuxe1c-kuxeanh}
+
+Để giảm lệch thời điểm giữa các kênh, firmware đọc một lần thanh ghi IDR của GPIOA rồi tách bit cho CH0..CH7. Cách làm này hợp lý hơn việc đọc tuần tự từng chân bằng hàm mức cao, vì toàn bộ trạng thái của 8 kênh được lấy từ cùng một snapshot phần cứng.
+
+Giới hạn của cách phân tích hiện tại là chưa có số đo thực nghiệm về skew hoặc jitter. Do đó, báo cáo chỉ khẳng định nguyên lý thiết kế và cấu trúc mã nguồn; phần đánh giá định lượng được giữ trong khung kết quả cần bổ sung.
+
+\section{Giao thức truyền dữ liệu sau capture}\label{giao-thux1ee9c-truyux1ec1n-dux1eef-liux1ec7u-sau-capture}
+
+Sau khi capture hoàn tất, firmware gửi dữ liệu cho PC theo frame SLA8. Mỗi mẫu được lưu bằng một byte, trong đó bit 0 đến bit 7 tương ứng CH0 đến CH7. Header của frame chứa magic, version, số kênh, sample rate, số mẫu, vị trí trigger, flags và checksum để phần mềm PC kiểm tra trước khi hiển thị.
+
+Lý thuyết về mạch bảo vệ
+
+\chapter{THIẾT KẾ HỆ THỐNG}\label{thiux1ebft-kux1ebf-hux1ec7-thux1ed1ng}
+
+\section{Kiến trúc tổng thể}\label{kiux1ebfn-truxfac-tux1ed5ng-thux1ec3}
+
+Hệ thống được tổ chức thành ba lớp. Lớp phần cứng gồm board STM32 và các chân thu tín hiệu. Lớp firmware chịu trách nhiệm lấy mẫu, quản lý trigger, lưu buffer và đóng gói frame. Lớp phần mềm PC điều khiển thiết bị, giải mã frame, hiển thị waveform và thực hiện các decoder giao thức.
+
+\emph{{[}CẦN BỔ SUNG HÌNH: Sơ đồ gồm khối tín hiệu vào CH0..CH7, STM32/TIM2/RAM buffer, UART SLA8 và phần mềm PC.{]}}
+
+\protect\phantomsection\label{_Toc234276623}{}Hình 1 Sơ đồ khối logic analyzer Topic 1
+
+\section{Thiết kế phần cứng}\label{thiux1ebft-kux1ebf-phux1ea7n-cux1ee9ng}
+
+Phần cứng được thiết kế quanh vi điều khiển STM32F103C8. Tám kênh vào CH0..CH7 được ánh xạ tới PA0..PA7; đường giao tiếp với máy tính sử dụng UART trên PA9/PA10 ở tốc độ 1.000.000 baud. Ở phiên bản chưa có mạch bảo vệ, tín hiệu đưa vào GPIO cần giới hạn ở mức logic 3,3 V.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Bảng 2 Các thành phần phần cứng}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Thành phần
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Thông tin hiện có
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Cần hoàn thiện
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Thành phần
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Thông tin hiện có
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Cần hoàn thiện
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Board/MCU & Môi trường mặc định: genericSTM32F103C8, framework Arduino. & Xác nhận model board thật và ảnh phần cứng. \\
+Kênh đo & CH0..CH7 ánh xạ PA0..PA7. & Sơ đồ nối dây và ảnh lắp mạch. \\
+Truyền thông PC & UART PA9/PA10, baudrate 1.000.000. & Xác nhận cổng COM và module USB-TTL khi demo. \\
+Bảo vệ đầu vào & Chưa có sơ đồ bảo vệ; tài liệu hiện chỉ cảnh báo giới hạn mức logic 3,3 V. & {[}CẦN BỔ SUNG: mạch bảo vệ/buffer đầu vào và phạm vi điện áp an toàn{]}. \\
+Nguồn tín hiệu thử & Có chương trình Arduino UNO tạo xung, UART và I2C. & Sơ đồ đấu nối Arduino với STM32. \\
+\end{longtable}
+
+\section{Thiết kế firmware}\label{thiux1ebft-kux1ebf-firmware}
+
+Firmware đảm nhiệm toàn bộ quá trình thu thập dữ liệu: khởi tạo ngoại vi, nhận lệnh điều khiển từ PC, cấu hình timer, quản lý trigger, ghi mẫu vào buffer và truyền frame sau khi capture kết thúc. Các chức năng được tách thành các khối rõ ràng gồm cấu hình phần cứng, lõi capture, đóng gói giao thức, xử lý trigger và đo chu kỳ thực thi khi cần benchmark.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.2465}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.7535}}@{}}
+\caption{Bảng 3 Vai trò các mô-đun firmware}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mô-đun
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Vai trò
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mô-đun
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Vai trò
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+board\_config.h & Định nghĩa số kênh, chân PA0..PA7, UART PA9/PA10, TIM2, buffer và tốc độ. \\
+main.cpp & Điều phối UART command, timer, capture state và gửi frame sau capture. \\
+la\_capture.h/c & Quản lý trạng thái capture, pretrigger/posttrigger, trigger và hot path ISR. \\
+la\_protocol.h/c & Tạo header SLA8, checksum và metadata frame. \\
+la\_benchmark.c & Hỗ trợ đo chu kỳ ISR bằng DWT khi build bật benchmark. \\
+firmware\_v2 & Nhánh tối ưu ISR/RAM và thử DMA one-shot cho trigger immediate. \\
+\end{longtable}
+
+\section{Luồng hoạt động firmware Sơ đồ khối hoạt động}\label{luux1ed3ng-houx1ea1t-ux111ux1ed9ng-firmware-sux1a1-ux111ux1ed3-khux1ed1i-houx1ea1t-ux111ux1ed9ng}
+
+Khi khởi động, firmware cấu hình UART, GPIO đầu vào, benchmark và tốc độ lấy mẫu mặc định.
+
+PC gửi lệnh cấu hình như CFG RATE, CFG PRE, CFG POST và TRIG để thiết lập phiên capture.
+
+Khi nhận ARM, firmware cấu hình TIM2 và bắt đầu lấy mẫu theo chu kỳ.
+
+Trong ISR, firmware đọc snapshot GPIOA, cập nhật buffer và trạng thái trigger/posttrigger.
+
+Khi capture hoàn tất, firmware dừng timer, gửi EVENT và chờ PC gửi DUMP để truyền frame SLA8.
+
+\section{Thiết kế phần mềm PC}\label{thiux1ebft-kux1ebf-phux1ea7n-mux1ec1m-pc}
+
+Phần mềm PC được xây dựng bằng Python, PyQt5 và pyqtgraph. Ứng dụng quản lý kết nối serial, cấu hình phiên capture, nhận frame SLA8, kiểm tra dữ liệu, tách từng kênh từ payload bit-packed và hiển thị waveform. Giao diện cũng cung cấp các điều khiển chọn cổng COM, sample rate, chế độ offline/realtime, trigger và bảng decode.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Bảng 4 Chức năng phần mềm PC}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Chức năng
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mô tả
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Chức năng
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mô tả
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Kết nối thiết bị & Mở serial, gửi PING, đọc INFO và lấy thông tin buffer/tốc độ. \\
+Capture offline & Gửi ARM, đợi EVENT, gửi DUMP, đọc frame và kiểm tra checksum. \\
+Hiển thị waveform & Vẽ 8 kênh, hỗ trợ zoom, fit, scroll và follow live. \\
+Realtime & Lặp lại offline capture bằng QTimer để cập nhật waveform. \\
+Decode & Hỗ trợ UART và I2C trên capture hiện tại. \\
+CLI & Công cụ dòng lệnh hỗ trợ lưu một frame SLA8 để kiểm tra sau capture. \\
+\end{longtable}
+
+\section{Giao thức điều khiển}\label{giao-thux1ee9c-ux111iux1ec1u-khiux1ec3n}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Bảng 5 Các lệnh UART chính}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Lệnh
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Ý nghĩa
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Lệnh
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Ý nghĩa
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PING & Kiểm tra thiết bị, phản hồi PONG SLA8. \\
+INFO & In version, số kênh, buffer, default/max rate và thông tin capture. \\
+STATUS & In trạng thái capture, actual rate, số mẫu, overflow và dropped samples. \\
+CFG RATE \textless Hz\textgreater{} & Cấu hình tốc độ lấy mẫu. \\
+TRIG IMM/RISE/FALL/ANY/PAT & Cấu hình điều kiện trigger. \\
+ARM & Bắt đầu phiên capture. \\
+DUMP & Truyền frame SLA8 sau khi capture kết thúc. \\
+\end{longtable}
+
+\section{Công cụ tạo tín hiệu thử}\label{cuxf4ng-cux1ee5-tux1ea1o-tuxedn-hiux1ec7u-thux1eed}
+
+Bộ tạo tín hiệu thử sử dụng Arduino UNO để phát các dạng tín hiệu phục vụ kiểm tra, gồm xung tuần hoàn, UART bit-bang và I2C dạng open-drain. Khối này phù hợp để tạo dữ liệu đầu vào cho việc quan sát waveform và kiểm tra decoder; kết quả chạy thực nghiệm cần được bổ sung bằng ảnh chụp hoặc log sau khi đo trên phần cứng.
+
+3.8 Thiết kế Khối mạch bảo vệ
+
+\chapter{TRIỂN KHAI VÀ KIỂM THỬ}\label{triux1ec3n-khai-vuxe0-kiux1ec3m-thux1eed}
+
+Cách cắm mạch, nối dây, chạy file gì để làm chương trình, thao tác như nào
+
+Khi cap ảnh decode, cap rõ phần start bit, stop bit đối với UART để chèn ảnh vào và chú thích khoanh vùng phần đó (MISO, MOSI)
+
+\section{Cấu hình build}\label{cux1ea5u-huxecnh-build}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\caption{Bảng 6 Lệnh triển khai}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mục đích
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Lệnh
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mục đích
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Lệnh
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Build firmware mặc định & python -m platformio run -e genericSTM32F103C8\_serial \\
+Nạp firmware qua UART & python -m platformio run -e genericSTM32F103C8\_serial -\/-target upload -\/-upload-port COM12 \\
+Chạy giao diện PC & python src\textbackslash software\textbackslash main.py \\
+Capture bằng CLI & python src\textbackslash software\textbackslash tools\textbackslash serial\_capture.py COM12 capture.sla8 -\/-baud 1000000 -\/-rate 100000 -\/-timeout 10 \\
+Build firmware v2 & python -m platformio run -e c8\_v2\_serial \\
+\end{longtable}
+
+\section{Kịch bản thử nghiệm}\label{kux1ecbch-bux1ea3n-thux1eed-nghiux1ec7m}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Bảng 7 Kịch bản cần chạy trên phần cứng}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mã
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mục tiêu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Cách thực hiện
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Kết quả
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mã
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mục tiêu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Cách thực hiện
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Kết quả
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+TC-01 & Kiểm tra kết nối UART. & Gửi PING/INFO qua phần mềm PC hoặc CLI. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-02 & Kiểm tra mapping 8 kênh. & Đưa tín hiệu vào PA0..PA7 và quan sát CH0..CH7. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-03 & Xác nhận sample rate 1 kHz. & Chọn 1 kHz, capture xung tham chiếu và đọc STATUS. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-04 & Đánh giá timing giữa các kênh. & Đưa cùng một tín hiệu vào nhiều kênh và đo lệch cạnh. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-05 & Kiểm tra UART decoder. & Tạo UART bằng Arduino/HC-05 và decode trên CH0. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-06 & Kiểm tra I2C decoder. & Tạo SCL/SDA bằng Arduino và decode trong GUI. & {[}CHƯA CÓ DỮ LIỆU{]} \\
+TC-07 & Kiểm tra mạch bảo vệ. & Thực hiện sau khi có mạch bảo vệ đầu vào. & {[}CẦN BỔ SUNG: thiết kế bảo vệ đầu vào{]} \\
+\end{longtable}
+
+\section{Khung kết quả đo}\label{khung-kux1ebft-quux1ea3-ux111o}
+
+Hiện chưa có log đo trên board, ảnh waveform hoặc dữ liệu capture mẫu. Do đó, bảng dưới đây giữ vai trò khung kết quả để điền sau khi chạy thực nghiệm, không sử dụng số liệu suy đoán.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\caption{Bảng 8 Kết quả thực nghiệm cần bổ sung}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Thông số
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mục tiêu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Giá trị đo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Minh chứng
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Thông số
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mục tiêu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Giá trị đo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Minh chứng
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Số kênh hiển thị & Tối thiểu 2, thiết kế 8 kênh. & {[}CHƯA CÓ DỮ LIỆU{]} & Ảnh waveform/log INFO. \\
+Sample rate 1 kHz & Đáp ứng yêu cầu Topic 1. & {[}CHƯA CÓ DỮ LIỆU{]} & STATUS hoặc phép đo tham chiếu. \\
+Sample rate 100 kHz & Mức mặc định firmware. & {[}CHƯA CÓ DỮ LIỆU{]} & STATUS/ảnh đo. \\
+Sample rate 1 MHz & Mức max target trong cấu hình. & {[}CHƯA CÓ DỮ LIỆU{]} & STATUS/thiết bị đo ngoài. \\
+Jitter/skew & Luận giải timing giữa các kênh. & {[}CHƯA CÓ DỮ LIỆU{]} & Ảnh đo cạnh/xung tham chiếu. \\
+Decode UART & Giải mã đúng byte thử. & {[}CHƯA CÓ DỮ LIỆU{]} & Ảnh bảng decode. \\
+Decode I2C & Nhận diện START/STOP, ADDR/DATA. & {[}CHƯA CÓ DỮ LIỆU{]} & Ảnh bảng decode. \\
+\end{longtable}
+
+\emph{{[}CẦN BỔ SUNG HÌNH: Ảnh giao diện PC sau khi capture tín hiệu thật từ board.{]}}
+
+\protect\phantomsection\label{_Toc234276624}{}Hình 2 Waveform cần bổ sung sau thực nghiệm
+
+\chapter{ĐÁNH GIÁ VÀ THẢO LUẬN}\label{ux111uxe1nh-giuxe1-vuxe0-thux1ea3o-luux1eadn}
+
+\section{Mức độ hoàn thành theo thiết kế}\label{mux1ee9c-ux111ux1ed9-houxe0n-thuxe0nh-theo-thiux1ebft-kux1ebf}
+
+Về mặt cấu trúc, hệ thống đã có các thành phần cốt lõi của một logic analyzer đơn giản: lấy mẫu GPIO bằng timer, lưu buffer, truyền frame sau capture, hiển thị waveform trên PC và decode UART/I2C. Các thành phần này phù hợp với hướng triển khai Topic 1.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\caption{Bảng 9 Đối chiếu yêu cầu với hiện trạng}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Yêu cầu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Hiện trạng
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Đánh giá
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Yêu cầu
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Hiện trạng
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Đánh giá
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Số kênh & Cấu hình 8 kênh. & Đạt ở mức thiết kế; cần demo phần cứng. \\
+Tốc độ tối thiểu & Có lựa chọn 1 kHz. & Cần xác nhận bằng đo thực tế. \\
+Hiển thị PC & Có giao diện waveform. & Đạt ở mức phần mềm; cần ảnh capture thật. \\
+Timing & Dùng TIM2 và đọc GPIO snapshot. & Có cơ sở thiết kế; thiếu số đo jitter/skew. \\
+Decode & UART/I2C decoder. & Có chức năng; cần dữ liệu thử nghiệm. \\
+Bảo vệ đầu vào & Chưa có sơ đồ. & Chưa đủ để đánh giá phần cứng bảo vệ. \\
+\end{longtable}
+
+\section{Hạn chế}\label{hux1ea1n-chux1ebf}
+
+\hl{Chưa có sơ đồ nguyên lý và sơ đồ nối dây đầy đủ.}
+
+\hl{Chưa có mạch bảo vệ đầu vào được mô tả bằng linh kiện cụ thể.}
+
+\hl{Chưa có ảnh chụp phần cứng, ảnh waveform, log STATUS/BENCH hoặc dữ liệu capture mẫu.}
+
+Chưa có số đo timing định lượng cho jitter, skew và tốc độ tối đa thực tế.
+
+\hl{Chưa thấy decoder SPI trong mã nguồn.}
+
+\section{Hướng phát triển}\label{hux1b0ux1edbng-phuxe1t-triux1ec3n}
+
+Bổ sung buffer hoặc mạch bảo vệ đầu vào và mô tả dải điện áp an toàn.
+
+Thực hiện bộ thử nghiệm với Arduino signal generator, lưu ảnh waveform và bảng decode.
+
+Đo timing bằng tín hiệu tham chiếu để hoàn thiện phần đánh giá độ chính xác.
+
+Bổ sung decoder SPI hoặc nêu rõ phạm vi sản phẩm chỉ hỗ trợ UART/I2C.
+
+Thêm test tự động cho protocol\_frame.py và các decoder để kiểm soát lỗi hồi quy.
+
+\chapter{KẾT LUẬN}\label{kux1ebft-luux1eadn}
+
+Đề tài Topic 1 hướng tới việc xây dựng một logic analyzer đơn giản nhưng thể hiện đầy đủ chuỗi xử lý của một thiết bị đo tín hiệu số: lấy mẫu, lưu đệm, truyền dữ liệu, hiển thị waveform và giải mã giao thức. Dựa trên phần triển khai hiện tại, hệ thống đã hình thành được nền tảng firmware STM32 và phần mềm PC cho mục tiêu này.
+
+Các phần có thể khẳng định chắc chắn hiện nằm ở mức thiết kế và triển khai. Để báo cáo đạt mức hoàn chỉnh cho bảo vệ, cần bổ sung minh chứng phần cứng gồm sơ đồ mạch, ảnh demo, log capture và số đo timing thực tế.
+
+\chapter{TÀI LIỆU THAM KHẢO}\label{tuxe0i-liux1ec7u-tham-khux1ea3o}
+
+{[}1{]} BTL Hệ thống nhúng và thiết kế giao tiếp nhúng 2025.2.pdf.
+
+{[}2{]} Tài liệu mô tả cấu trúc và cách sử dụng hệ thống logic analyzer.
+
+{[}3{]} Cấu hình biên dịch và nạp firmware bằng PlatformIO.
+
+{[}4{]} Mã chương trình firmware STM32 cho khối capture và truyền dữ liệu.
+
+{[}5{]} Mã chương trình phần mềm PC cho hiển thị waveform và decode giao thức.
+
+{[}6{]} Tài liệu mô tả bộ phát tín hiệu kiểm thử dùng Arduino UNO.

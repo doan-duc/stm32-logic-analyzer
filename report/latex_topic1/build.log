@@ -1,0 +1,320 @@
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.1) (preloaded format=xelatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(Bao_cao_Topic_1_Doan_Sinh_Duc.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/base\report.cls
+Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
+
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo
+))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geomet
+ry.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval
+.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.
+sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.s
+ty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geomet
+ry.cfg))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontsp
+ec.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xpar
+se\xparse.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.
+sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3bac
+kend-xetex.def)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontsp
+ec-xetex.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.st
+y)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontsp
+ec.cfg)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fontsize\fontsi
+ze.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval
+.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyv
+al.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvut
+ils.tex)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xfp\
+xfp.sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphi
+cx.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphi
+cs.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.s
+ty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\gr
+aphics.cfg)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\xe
+tex.def)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath
+.sty
+For additional information on amsmath, use the `?' option.
+
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext
+.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.
+sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.
+sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.
+sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.s
+ty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\co
+lor.cfg)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathco
+lor.ltx))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable
+.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty)
+
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.
+sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption
+.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption
+3.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcapti
+on.sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/frontendlay
+er\tikz.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\
+pgf.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\p
+gfrcs.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfutil-common.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfutil-latex.def)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfrcs.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf\pgf.revis
+ion.tex)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\
+pgfcore.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/systemlayer
+\pgfsys.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsys.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfkeys.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfkeyslibraryfiltered.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgf.cfg)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsys-xetex.def
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsys-dvipdfmx.def
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsys-common-pdf.def))))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsyssoftpath.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlay
+er\pgfsysprotocol.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcore.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+ath.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athutil.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athparser.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.basic.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.trigonometric.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.random.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.comparison.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.base.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.round.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.misc.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfunctions.integerarithmetics.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athcalc.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+athfloat.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfi
+nt.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorepoints.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorepathconstruct.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorepathusage.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorescopes.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoregraphicstate.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoretransformations.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorequick.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoreobjects.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorepathprocessing.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorearrows.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoreshade.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoreimage.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoreexternal.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorelayers.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcoretransparency.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorepatterns.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclaye
+r\pgfcorerdf.code.tex)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\p
+gfmoduleshapes.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\p
+gfmoduleplot.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibili
+ty\pgfcomp-version-0-65.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibili
+ty\pgfcomp-version-1-18.sty))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\p
+gffor.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\p
+gfkeys.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgfkeys.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/pgf/math\pgfmat
+h.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfm
+ath.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities
+\pgffor.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendl
+ayer/tikz\tikz.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries
+\pgflibraryplothandlers.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\p
+gfmodulematrix.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendl
+ayer/tikz/libraries\tikzlibrarytopaths.code.tex)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries
+\pgflibraryarrows.meta.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendl
+ayer/tikz/libraries\tikzlibrarypositioning.code.tex)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendl
+ayer/tikz/libraries\tikzlibraryshapes.geometric.code.tex
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries
+/shapes\pgflibraryshapes.geometric.code.tex))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
+)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/titlesec\titles
+ec.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/enumitem\enumit
+em.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/fancyhdr\fancyh
+dr.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/tocloft\tocloft
+.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/chngcntr\chngcn
+tr.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperr
+ef.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvset
+keys.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\
+kvdefinekeys.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdf
+escape.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcm
+ds.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pd
+ftexcmds.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\inf
+warerr.sty)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor
+.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\namere
+f.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcou
+nt.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestrin
+g\gettitlestring.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvopt
+ions.sty)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolb
+ox.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\str
+ingenc.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc
+.def)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intca
+lc.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.
+def)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset
+.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bi
+gintcalc.sty)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hxetex
+.def
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\
+rerunfilecheck.sty
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter
+\uniquecounter.sty)))
+(C:\Users\DOAN SINH DUC\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty)
+(Bao_cao_Topic_1_Doan_Sinh_Duc.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+(Bao_cao_Topic_1_Doan_Sinh_Duc.out) (Bao_cao_Topic_1_Doan_Sinh_Duc.out)
+[1] (Bao_cao_Topic_1_Doan_Sinh_Duc.toc [1]) [2]
+(Bao_cao_Topic_1_Doan_Sinh_Duc.lof) [3] (Bao_cao_Topic_1_Doan_Sinh_Duc.lot)
+[4] (content.tex
+Chapter 1.
+[1] [2]
+Chapter 2.
+[3] [4]
+Chapter 3.
+content.tex:208: ignored: Infinite glue shrinkage found in box being split
+[5]
+content.tex:268: ignored: Infinite glue shrinkage found in box being split
+[6]
+content.tex:310: ignored: Infinite glue shrinkage found in box being split
+[7] [8]
+Chapter 4.
+[9] [10] [11] [12] [13] [14] [15] [16] [17]
+Chapter 5.
+[18]
+Chapter 6.
+[19]) [20] (Bao_cao_Topic_1_Doan_Sinh_Duc.aux)
+
+LaTeX Font Warning: Size substitutions with differences
+(Font)              up to 1.0pt have occurred.
+
+ )
+Output written on Bao_cao_Topic_1_Doan_Sinh_Duc.pdf (25 pages).
+Transcript written on Bao_cao_Topic_1_Doan_Sinh_Duc.log.
+
+log4cxx: setFile(C:\Users\DOAN SINH DUC\AppData\Local\MiKTeX\miktex\log/xelatex.log,true) call failed.
+log4cxx: IO Exception : status code = 720005(Access is denied.  )
+log4cxx: setFile(C:\Users\DOAN SINH DUC\AppData\Local\MiKTeX\miktex\log/miktex-dvipdfmx.log,true) call failed.
+log4cxx: IO Exception : status code = 720005(Access is denied.  )

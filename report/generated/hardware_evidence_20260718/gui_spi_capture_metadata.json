@@ -1,0 +1,53 @@
+{
+  "source_frame": "D:\\BTL_HTN_v2\\report\\generated\\hardware_evidence_20260718\\spi_probe_500ksps.sla8",
+  "output_image": "D:\\BTL_HTN_v2\\report\\generated\\hardware_evidence_20260718\\gui_05_spi_decode_ch3_ch6.png",
+  "requested_rate_hz": 500000,
+  "actual_rate_hz": 500000,
+  "samples": 13888,
+  "flags": 0,
+  "overflow_count": 0,
+  "dropped_samples": 0,
+  "channels": {
+    "SCK": 3,
+    "MOSI": 4,
+    "MISO": 5,
+    "CS": 6
+  },
+  "decoded_rows": [
+    [
+      "10714.00",
+      "SPI",
+      "CS",
+      "LOW",
+      "frame start"
+    ],
+    [
+      "10872.00",
+      "SPI",
+      "BYTE",
+      "MOSI=0x55 MISO=0xA5",
+      "byte 0"
+    ],
+    [
+      "11032.00",
+      "SPI",
+      "BYTE",
+      "MOSI=0xA5 MISO=0x3C",
+      "byte 1"
+    ],
+    [
+      "11192.00",
+      "SPI",
+      "BYTE",
+      "MOSI=0x5A MISO=0xC3",
+      "byte 2"
+    ],
+    [
+      "11202.00",
+      "SPI",
+      "CS",
+      "HIGH",
+      "frame end"
+    ]
+  ]
+}

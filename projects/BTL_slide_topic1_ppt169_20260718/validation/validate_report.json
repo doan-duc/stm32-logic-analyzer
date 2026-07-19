@@ -1,0 +1,12 @@
+{
+  "schema": "template_fill_pptx_validate.v1",
+  "project": "D:\\BTL_HTN_v2\\projects\\BTL_slide_topic1_ppt169_20260718",
+  "export": "D:\\BTL_HTN_v2\\projects\\BTL_slide_topic1_ppt169_20260718\\exports\\BTL_slide_hoan_chinh.pptx",
+  "readback": "D:\\BTL_HTN_v2\\projects\\BTL_slide_topic1_ppt169_20260718\\validation\\readback.md",
+  "summary": {
+    "ok": 2,
+    "warn": 0,
+    "error": 0
+  },
+  "results": []
+}

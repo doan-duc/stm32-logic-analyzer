@@ -13,6 +13,7 @@ enum GeneratorMode : uint8_t {
 };
 
 static const GeneratorMode GENERATOR_DEFAULT_MODE = MODE_BOTH;
+static const bool GENERATOR_SPI_OPEN_DRAIN = true;
 static const uint16_t GENERATOR_AUX_STEP_RATE_HZ = 4000U;
 static const uint8_t GENERATOR_AUX_CHANNEL_COUNT = 5U;
 
@@ -61,7 +62,13 @@ static inline uint8_t generator_i2c_tick_us(GeneratorMode mode) {
 }
 
 static inline uint8_t generator_spi_half_period_us(GeneratorMode mode) {
-  return mode == MODE_SPI ? 5U : 0U;
+  if (mode == MODE_SPI) {
+    return 5U;
+  }
+  if (mode == MODE_BOTH) {
+    return 25U;
+  }
+  return 0U;
 }
 
 static inline bool generator_parse_mode_command(const char *command,

@@ -4,6 +4,9 @@
 # Python bytecode/cache.
 __pycache__/
 *.py[cod]
+.coverage
+.pytest_cache/
+.ruff_cache/
 
 # VS Code files generated for one machine. Keep extensions.json only.
 .vscode/.browse.c_cpp.db*

@@ -1,0 +1,23 @@
+{
+  "schema": "template_fill_pptx_plan.v1",
+  "status": "confirmed",
+  "source_pptx": "sources/BTL_slide.pptx",
+  "accepted_warnings": [],
+  "slides": [
+    {"source_slide": 1, "purpose": "cover", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "problem", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "goals", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "architecture", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "hardware", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "sampling", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "frame", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "software", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "hil", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "speed", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "timing", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "decoders", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "edge_cases", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "requirements", "notes": "Có ghi chú thuyết trình.", "replacements": []},
+    {"source_slide": 2, "purpose": "conclusion", "notes": "Có ghi chú thuyết trình.", "replacements": []}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "ppt-master.source_to_md.profile.v1",
+  "converter": "doc_to_md.py",
+  "conversion_type": "tex",
+  "source": {
+    "path": "content.tex",
+    "name": "content.tex",
+    "suffix": ".tex",
+    "kind": "file",
+    "exists": true,
+    "size_bytes": 57164
+  },
+  "outputs": {
+    "markdown": "content.md",
+    "asset_dir": "",
+    "image_manifest": "",
+    "image_count": 0
+  },
+  "markdown": {
+    "line_count": 726,
+    "char_count": 42613,
+    "heading_count": 42,
+    "table_count": 10,
+    "image_ref_count": 10,
+    "link_count": 2
+  },
+  "warnings": []
+}

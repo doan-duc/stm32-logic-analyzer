@@ -1,0 +1,588 @@
+{
+  "TC01": {
+    "info": [
+      "INFO SLA8-FW-V2-P5",
+      "MAGIC SLA8",
+      "CHANNELS 8",
+      "RAM_BYTES 20480",
+      "BUFFER 13888",
+      "BUFFER_BYTES 13888",
+      "RUNTIME_RESERVE_BYTES 4096",
+      "RAMFUNC_BUDGET_BYTES 512",
+      "TIMER_CLOCK 72000000",
+      "DEFAULT_RATE 100000",
+      "MAX_TARGET_RATE 6545454",
+      "ISR_MAX_VERIFIED 400000",
+      "DMA_MAX_VERIFIED 6545454",
+      "PAYLOAD bitpacked_u8",
+      "CAPTURE_DEFAULT TIMER_DMA_GPIO_IDR",
+      "CAPTURE_MODE TIMER_DMA_GPIO_IDR",
+      "DMA ONE_SHOT_IMMEDIATE_VERIFIED_GRAY_HIL",
+      "DMA_MAP TIM2_UP_DMA1_CHANNEL2_RM0008",
+      "HARDWARE_MAX_RATE DMA_5818181_ISR_400000",
+      "ISR_OVERRUN_DIAG UIF_REASSERT_LOWER_BOUND",
+      "STACK_CHECK RUNTIME_ESTIMATE_ONLY",
+      "END INFO"
+    ],
+    "status": {
+      "state": "COMPLETE",
+      "requested_rate": 100000,
+      "actual_rate": 100000,
+      "timer_clock": 72000000,
+      "error_ppm": 0,
+      "samples": 13888,
+      "trigger_index": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "isr_overruns": 0,
+      "capture_mode": "TIMER_DMA_GPIO_IDR",
+      "engine": "TIMER_DMA_GPIO_IDR",
+      "dma_errors": 0,
+      "buffer": 13888,
+      "stack_free_est": 4208
+    },
+    "frame": {
+      "samples": 13888,
+      "flags": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "actual_rate": 100000,
+      "requested": 100000
+    },
+    "header_checksum": 1792923162,
+    "payload_checksum": 574773964,
+    "gen_status": "MODE GRAY | GRAY_RATE 10000"
+  },
+  "TC02": {
+    "gray": {
+      "stable_states": 1389,
+      "sequence_errors": 0,
+      "short_runs": 0,
+      "channel_edges": [
+        694,
+        347,
+        173,
+        87,
+        44,
+        22,
+        10,
+        11
+      ],
+      "measured_rate": 100007.2,
+      "rate_err_pct": 0.0072,
+      "passed": true
+    },
+    "frame": {
+      "samples": 13888,
+      "flags": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "actual_rate": 100000,
+      "requested": 100000
+    },
+    "status": {
+      "state": "COMPLETE",
+      "requested_rate": 100000,
+      "actual_rate": 100000,
+      "timer_clock": 72000000,
+      "error_ppm": 0,
+      "samples": 13888,
+      "trigger_index": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "isr_overruns": 0,
+      "capture_mode": "TIMER_DMA_GPIO_IDR",
+      "engine": "TIMER_DMA_GPIO_IDR",
+      "dma_errors": 0,
+      "buffer": 13888,
+      "stack_free_est": 4208
+    }
+  },
+  "TC03": {
+    "sweep": [
+      {
+        "requested": 1000,
+        "ok": true,
+        "actual": 1000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 10000,
+        "ok": true,
+        "actual": 10000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 100000,
+        "ok": true,
+        "actual": 100000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 500000,
+        "ok": true,
+        "actual": 500000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 1000000,
+        "ok": true,
+        "actual": 1000000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 2000000,
+        "ok": true,
+        "actual": 2000000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 4000000,
+        "ok": true,
+        "actual": 4000000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 5000000,
+        "ok": true,
+        "actual": 5142857,
+        "error_ppm": 28571,
+        "timer_clock": 72000000
+      },
+      {
+        "requested": 6000000,
+        "ok": true,
+        "actual": 6000000,
+        "error_ppm": 0,
+        "timer_clock": 72000000
+      }
+    ],
+    "gray_crosscheck": {
+      "1000000": {
+        "stable_states": 1389,
+        "sequence_errors": 0,
+        "short_runs": 0,
+        "channel_edges": [
+          694,
+          347,
+          173,
+          87,
+          43,
+          22,
+          11,
+          11
+        ],
+        "measured_rate": 1000000.0,
+        "rate_err_pct": 0.0,
+        "passed": true
+      },
+      "4000000": {
+        "stable_states": 348,
+        "sequence_errors": 0,
+        "short_runs": 0,
+        "channel_edges": [
+          173,
+          87,
+          44,
+          21,
+          11,
+          5,
+          3,
+          3
+        ],
+        "measured_rate": 4000289.0,
+        "rate_err_pct": 0.0072,
+        "passed": true
+      }
+    }
+  },
+  "TC04": {
+    "ceiling": {
+      "6545454": {
+        "gray": {
+          "stable_states": 213,
+          "sequence_errors": 0,
+          "short_runs": 0,
+          "channel_edges": [
+            106,
+            53,
+            27,
+            13,
+            7,
+            3,
+            2,
+            1
+          ],
+          "measured_rate": 6545971.6,
+          "rate_err_pct": 0.0079,
+          "passed": true
+        },
+        "frame": {
+          "samples": 13888,
+          "flags": 0,
+          "overflow": 0,
+          "dropped": 0,
+          "actual_rate": 6545454,
+          "requested": 6545454
+        },
+        "integrity_ok": true,
+        "channels_resolved": 8
+      }
+    },
+    "reject": {
+      "7000000": "ERR BAD_RATE",
+      "8000000": "ERR BAD_RATE",
+      "10000000": "ERR BAD_RATE"
+    }
+  },
+  "TC05": {
+    "mode_switch_ok": true,
+    "runs": {
+      "100000": {
+        "gray": {
+          "stable_states": 1389,
+          "sequence_errors": 0,
+          "short_runs": 0,
+          "channel_edges": [
+            694,
+            347,
+            173,
+            87,
+            43,
+            22,
+            11,
+            11
+          ],
+          "measured_rate": 100000.0,
+          "rate_err_pct": 0.0,
+          "passed": true
+        },
+        "isr_overruns": 0,
+        "frame": {
+          "samples": 13888,
+          "flags": 0,
+          "overflow": 0,
+          "dropped": 0,
+          "actual_rate": 100000,
+          "requested": 100000
+        }
+      },
+      "250000": {
+        "gray": {
+          "stable_states": 556,
+          "sequence_errors": 0,
+          "short_runs": 0,
+          "channel_edges": [
+            278,
+            138,
+            69,
+            35,
+            17,
+            9,
+            5,
+            4
+          ],
+          "measured_rate": 250018.1,
+          "rate_err_pct": 0.0072,
+          "passed": true
+        },
+        "isr_overruns": 0,
+        "frame": {
+          "samples": 13888,
+          "flags": 0,
+          "overflow": 0,
+          "dropped": 0,
+          "actual_rate": 250000,
+          "requested": 250000
+        }
+      },
+      "400000": {
+        "gray": {
+          "stable_states": 348,
+          "sequence_errors": 0,
+          "short_runs": 0,
+          "channel_edges": [
+            174,
+            86,
+            43,
+            22,
+            11,
+            5,
+            3,
+            3
+          ],
+          "measured_rate": 400028.9,
+          "rate_err_pct": 0.0072,
+          "passed": true
+        },
+        "isr_overruns": 0,
+        "frame": {
+          "samples": 13888,
+          "flags": 0,
+          "overflow": 0,
+          "dropped": 0,
+          "actual_rate": 400000,
+          "requested": 400000
+        }
+      }
+    },
+    "reject": {
+      "500000": "ERR BAD_RATE",
+      "1000000": "ERR BAD_RATE"
+    }
+  },
+  "TC06": {
+    "ch0_true_hz": 25000,
+    "adequate": {
+      "rate": 1000000,
+      "short_runs": 0,
+      "sequence_errors": 0,
+      "ch0_apparent_hz": 24985.6,
+      "samples": 13888
+    },
+    "undersampled": {
+      "rate": 30000,
+      "short_runs": 13886,
+      "sequence_errors": 0,
+      "ch0_apparent_hz": 5001.8,
+      "samples": 13888
+    }
+  },
+  "TC07": {
+    "bit_median_samples": 18.0,
+    "bit_us": 18.0,
+    "measured_baud": 55555.6,
+    "decode_baud": 57600,
+    "byte_histogram": {
+      "0x55 'U'": 14,
+      "0xA5 '.'": 14,
+      "0x4F 'O'": 13,
+      "0x4B 'K'": 13
+    },
+    "total_bytes": 54,
+    "framing_errors": 0,
+    "clean_frames": 13,
+    "frame": {
+      "samples": 13888,
+      "flags": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "actual_rate": 1000000,
+      "requested": 1000000
+    }
+  },
+  "TC08": {
+    "events": [
+      [
+        "START",
+        "",
+        ""
+      ],
+      [
+        "ADDR",
+        "0x50 W",
+        "ACK"
+      ],
+      [
+        "DATA",
+        "0xA5",
+        "ACK"
+      ],
+      [
+        "DATA",
+        "0x5A",
+        "NACK"
+      ],
+      [
+        "STOP",
+        "",
+        ""
+      ],
+      [
+        "START",
+        "",
+        ""
+      ],
+      [
+        "ADDR",
+        "0x50 W",
+        "ACK"
+      ],
+      [
+        "DATA",
+        "0xA5",
+        "ACK"
+      ],
+      [
+        "DATA",
+        "0x5A",
+        "NACK"
+      ],
+      [
+        "STOP",
+        "",
+        ""
+      ],
+      [
+        "START",
+        "",
+        ""
+      ],
+      [
+        "ADDR",
+        "0x50 W",
+        "ACK"
+      ]
+    ],
+    "frame": {
+      "samples": 13888,
+      "flags": 0,
+      "overflow": 0,
+      "dropped": 0,
+      "actual_rate": 2000000,
+      "requested": 2000000
+    }
+  },
+  "TC09": {
+    "clean_500k": {
+      "events": [
+        [
+          "CS",
+          "LOW",
+          "frame start"
+        ],
+        [
+          "BYTE",
+          "MOSI=0x55 MISO=0xA5",
+          "byte 0"
+        ],
+        [
+          "BYTE",
+          "MOSI=0xA5 MISO=0x3C",
+          "byte 1"
+        ],
+        [
+          "BYTE",
+          "MOSI=0x5A MISO=0xC3",
+          "byte 2"
+        ],
+        [
+          "CS",
+          "HIGH",
+          "frame end"
+        ]
+      ],
+      "frame": {
+        "samples": 13888,
+        "flags": 0,
+        "overflow": 0,
+        "dropped": 0,
+        "actual_rate": 500000,
+        "requested": 500000
+      },
+      "warn": []
+    },
+    "undersampled": {
+      "rate": 150000,
+      "sck_hz": 50000.0,
+      "events": [
+        [
+          "CS",
+          "LOW",
+          "frame start"
+        ],
+        [
+          "WARN",
+          "UNDERSAMPLED",
+          "shortest SCK cycle is 3 samples; need at least 4"
+        ],
+        [
+          "CS",
+          "HIGH",
+          "frame end"
+        ],
+        [
+          "CS",
+          "LOW",
+          "frame start"
+        ],
+        [
+          "WARN",
+          "UNDERSAMPLED",
+          "shortest SCK cycle is 3 samples; need at least 4"
+        ],
+        [
+          "CS",
+          "HIGH",
+          "frame end"
+        ],
+        [
+          "CS",
+          "LOW",
+          "frame start"
+        ],
+        [
+          "WARN",
+          "UNDERSAMPLED",
+          "shortest SCK cycle is 2 samples; need at least 4"
+        ],
+        [
+          "CS",
+          "HIGH",
+          "frame end"
+        ],
+        [
+          "CS",
+          "LOW",
+          "frame start"
+        ]
+      ],
+      "frame": {
+        "samples": 13888,
+        "flags": 0,
+        "overflow": 0,
+        "dropped": 0,
+        "actual_rate": 150000,
+        "requested": 150000
+      },
+      "warn": [
+        "UNDERSAMPLED",
+        "UNDERSAMPLED",
+        "UNDERSAMPLED",
+        "UNDERSAMPLED"
+      ],
+      "byte_events": 0
+    }
+  },
+  "TC10": {
+    "edge": {
+      "trigger_index": 1490,
+      "requested_pre": 1500,
+      "level_before": 1,
+      "level_at": 0,
+      "pretrigger_high_samples": 1490,
+      "pretrigger_all_high": 1,
+      "frame": {
+        "samples": 5491,
+        "flags": 0,
+        "overflow": 0,
+        "dropped": 0,
+        "actual_rate": 100000,
+        "requested": 100000
+      },
+      "pre": "OK CFG PRE",
+      "post": "OK CFG POST",
+      "trig_cmd": "OK TRIG FALL"
+    },
+    "pattern_ok": "OK TRIG PAT",
+    "pattern_reject": "ERR BAD_PATTERN",
+    "bad_channel_reject": "ERR BAD_TRIGGER_OR_RATE"
+  }
+}

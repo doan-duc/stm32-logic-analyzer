@@ -64,18 +64,6 @@ static inline void od_write(const OpenDrainPin &pin, bool high) {
   high ? od_release(pin) : od_low(pin);
 }
 
-static inline void pp_drive(const OpenDrainPin &pin, bool high) {
-  const uint8_t old_sreg = SREG;
-  cli();
-  *pin.mode |= pin.mask;
-  if (high) {
-    *pin.out |= pin.mask;
-  } else {
-    *pin.out &= (uint8_t)~pin.mask;
-  }
-  SREG = old_sreg;
-}
-
 static void release_all_signals() {
   for (uint8_t index = 0; index < 8; ++index) {
     od_release(signal_pins[index]);
@@ -239,29 +227,29 @@ static void i2c_write_byte(uint8_t value, bool ack_low) {
 static void spi_write_byte(uint8_t mosi_value, uint8_t miso_value) {
   const uint16_t half_period_us = generator_spi_half_period_us(active_mode);
   for (uint8_t mask = 0x80U; mask != 0U; mask >>= 1) {
-    pp_drive(signal_pins[SPI_MOSI_CHANNEL], (mosi_value & mask) != 0U);
-    pp_drive(signal_pins[SPI_MISO_CHANNEL], (miso_value & mask) != 0U);
+    od_write(signal_pins[SPI_MOSI_CHANNEL], (mosi_value & mask) != 0U);
+    od_write(signal_pins[SPI_MISO_CHANNEL], (miso_value & mask) != 0U);
     delayMicroseconds(half_period_us);
-    pp_drive(signal_pins[SPI_SCK_CHANNEL], true);
+    od_write(signal_pins[SPI_SCK_CHANNEL], true);
     delayMicroseconds(half_period_us);
-    pp_drive(signal_pins[SPI_SCK_CHANNEL], false);
+    od_write(signal_pins[SPI_SCK_CHANNEL], false);
   }
 }
 
 static void send_spi_frame() {
   spi_aux_square = !spi_aux_square;
-  pp_drive(signal_pins[SPI_UNUSED_CHANNEL], spi_aux_square);
-  pp_drive(signal_pins[SPI_CS_CHANNEL], false);
+  od_write(signal_pins[SPI_UNUSED_CHANNEL], spi_aux_square);
+  od_write(signal_pins[SPI_CS_CHANNEL], false);
   delayMicroseconds(generator_spi_half_period_us(active_mode));
 
   spi_write_byte(0x55U, 0xA5U);
   spi_write_byte(0xA5U, 0x3CU);
   spi_write_byte(0x5AU, 0xC3U);
 
-  pp_drive(signal_pins[SPI_CS_CHANNEL], true);
-  pp_drive(signal_pins[SPI_SCK_CHANNEL], false);
-  pp_drive(signal_pins[SPI_MOSI_CHANNEL], true);
-  pp_drive(signal_pins[SPI_MISO_CHANNEL], true);
+  od_write(signal_pins[SPI_CS_CHANNEL], true);
+  od_write(signal_pins[SPI_SCK_CHANNEL], false);
+  od_write(signal_pins[SPI_MOSI_CHANNEL], true);
+  od_write(signal_pins[SPI_MISO_CHANNEL], true);
 }
 
 static void send_i2c_frame() {
@@ -301,12 +289,12 @@ static void set_mode(GeneratorMode mode) {
       start_aux_timer();
     }
     if (mode == MODE_SPI || mode == MODE_BOTH) {
-      pp_drive(signal_pins[SPI_SCK_CHANNEL], false);
-      pp_drive(signal_pins[SPI_MOSI_CHANNEL], true);
-      pp_drive(signal_pins[SPI_MISO_CHANNEL], true);
-      pp_drive(signal_pins[SPI_CS_CHANNEL], true);
+      od_write(signal_pins[SPI_SCK_CHANNEL], false);
+      od_write(signal_pins[SPI_MOSI_CHANNEL], true);
+      od_write(signal_pins[SPI_MISO_CHANNEL], true);
+      od_write(signal_pins[SPI_CS_CHANNEL], true);
       spi_aux_square = false;
-      pp_drive(signal_pins[SPI_UNUSED_CHANNEL], spi_aux_square);
+      od_write(signal_pins[SPI_UNUSED_CHANNEL], spi_aux_square);
     }
     // Let the USB command response finish before the first timing-sensitive burst.
     next_protocol_ms = millis() + PROTOCOL_START_DELAY_MS;

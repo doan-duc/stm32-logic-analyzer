@@ -1,0 +1,101 @@
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=2cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Times New Roman}
+\setmonofont{Times New Roman}
+\usepackage[fontsize=13]{fontsize}
+\changefontsize[14.3]{13}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{longtable,array,calc,tabularx}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{float}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{chngcntr}
+
+\usepackage{hyperref}
+\usepackage{xurl}
+\hypersetup{hidelinks,unicode,pdftitle={Báo cáo Topic 1 -- Logic Analyzer}}
+\Urlmuskip=0mu plus 1mu\relax
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\AtBeginDocument{\normalsize}
+\counterwithin{table}{chapter}
+\counterwithin{figure}{chapter}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\listfigurename}{DANH MỤC HÌNH VẼ}
+\renewcommand{\listtablename}{DANH MỤC BẢNG BIỂU}
+\captionsetup[table]{position=top,font={small,it},justification=centering,labelsep=space}
+\captionsetup[figure]{position=bottom,font={small,it},justification=centering,labelsep=space}
+\AtBeginEnvironment{longtable}{\normalsize\setlength{\tabcolsep}{5.4pt}\renewcommand{\arraystretch}{1.12}}
+\setlength{\arrayrulewidth}{0.5pt}
+\titleformat{\chapter}[block]{\centering\bfseries\fontsize{13pt}{15pt}\selectfont}{CHƯƠNG \thechapter.}{0.45em}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{0pt}{14pt}
+\titleformat{\section}{\bfseries\fontsize{13pt}{15pt}\selectfont}{\thesection}{0.45em}{}
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titleformat{\subsection}{\bfseries\itshape\fontsize{13pt}{15pt}\selectfont}{\thesubsection}{0.45em}{}
+\titlespacing*{\subsection}{0pt}{8pt}{3pt}
+\setlist[itemize]{leftmargin=1.0cm,noitemsep,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.0cm,noitemsep,topsep=3pt}
+\renewcommand{\cftdotsep}{0}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\newcommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\begin{document}
+\begin{titlepage}
+\centering
+{\bfseries\fontsize{15pt}{18pt}\selectfont ĐẠI HỌC BÁCH KHOA HÀ NỘI\par}
+\vspace{3pt}
+{\bfseries\fontsize{15pt}{18pt}\selectfont TRƯỜNG ĐIỆN -- ĐIỆN TỬ\par}
+\vspace{0.4cm}
+\includegraphics[width=2.63cm,height=3.94cm]{media/image1.png}\par
+\vfill
+{\bfseries\fontsize{25pt}{30pt}\selectfont BÁO CÁO BÀI TẬP LỚN\par}
+\vspace{0.7cm}
+{\bfseries\fontsize{23pt}{27.6pt}\selectfont THIẾT KẾ VÀ XÂY DỰNG THIẾT BỊ\\ LOGIC ANALYZER ĐƠN GIẢN\par}
+\vspace{0.5cm}
+{\bfseries Đề tài 1: Thiết kế và xây dựng thiết bị Logic Analyzer đơn giản\par}
+\vfill
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{0.88\textwidth}{|p{0.31\textwidth}|X|}
+\hline
+\textbf{Sinh viên thực hiện:} &
+\begin{tabular}[t]{@{}l@{}}
+Đoàn Sinh Đức -- 20234000\\
+Phạm Đăng Vinh -- 20233719\\
+Vũ Mạnh Quân -- 20234033\\
+Vũ Nam Khánh -- 20234015
+\end{tabular}\\
+\hline
+\textbf{Giảng viên hướng dẫn:} & TS. Đào Việt Hùng\\
+\hline
+\end{tabularx}
+\vfill
+Hà Nội, 7-2026\par
+\end{titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+\input{content.tex}
+\end{document}

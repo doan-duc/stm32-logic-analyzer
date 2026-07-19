@@ -1,0 +1,28 @@
+{
+  "schema": "ppt-master.source_to_md.profile.v1",
+  "converter": "doc_to_md.py",
+  "conversion_type": "tex",
+  "source": {
+    "path": "Bao_cao_Topic_1_Doan_Sinh_Duc.tex",
+    "name": "Bao_cao_Topic_1_Doan_Sinh_Duc.tex",
+    "suffix": ".tex",
+    "kind": "file",
+    "exists": true,
+    "size_bytes": 3733
+  },
+  "outputs": {
+    "markdown": "Bao_cao_Topic_1_Doan_Sinh_Duc.md",
+    "asset_dir": "",
+    "image_manifest": "",
+    "image_count": 0
+  },
+  "markdown": {
+    "line_count": 775,
+    "char_count": 43529,
+    "heading_count": 42,
+    "table_count": 10,
+    "image_ref_count": 11,
+    "link_count": 2
+  },
+  "warnings": []
+}

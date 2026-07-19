@@ -2,13 +2,14 @@
 
 #include "generator_modes.h"
 
-static void test_combined_mode_is_the_default() {
+static void test_combined_open_drain_mode_is_the_default() {
   assert(GENERATOR_DEFAULT_MODE == MODE_BOTH);
-  assert(generator_mode_emits_uart(MODE_BOTH));
-  assert(generator_mode_emits_i2c(MODE_BOTH));
-  assert(generator_mode_emits_spi(MODE_BOTH));
-  assert(generator_mode_emits_aux(MODE_BOTH));
-  assert(generator_mode_period_ms(MODE_BOTH) == 40U);
+  assert(GENERATOR_SPI_OPEN_DRAIN);
+  assert(generator_mode_emits_uart(GENERATOR_DEFAULT_MODE));
+  assert(generator_mode_emits_i2c(GENERATOR_DEFAULT_MODE));
+  assert(generator_mode_emits_spi(GENERATOR_DEFAULT_MODE));
+  assert(!generator_mode_emits_aux(GENERATOR_DEFAULT_MODE));
+  assert(generator_mode_period_ms(GENERATOR_DEFAULT_MODE) == 40U);
 }
 
 static void test_single_protocol_modes_stay_isolated() {
@@ -41,6 +42,7 @@ static void test_single_protocol_modes_stay_isolated() {
 
   assert(generator_uart_bit_us(MODE_BOTH) == 416U);
   assert(generator_i2c_tick_us(MODE_BOTH) == 25U);
+  assert(generator_spi_half_period_us(MODE_BOTH) == 25U);
 }
 
 static void test_auxiliary_channels_are_binary_dividers() {
@@ -128,7 +130,7 @@ static void test_gray_rate_command_and_timer_plan() {
 }
 
 int main() {
-  test_combined_mode_is_the_default();
+  test_combined_open_drain_mode_is_the_default();
   test_single_protocol_modes_stay_isolated();
   test_auxiliary_channels_are_binary_dividers();
   test_mode_command_parser();

@@ -1,0 +1,28 @@
+{
+  "schema": "ppt-master.source_to_md.profile.v1",
+  "converter": "ppt_to_md.py",
+  "conversion_type": "pptx",
+  "source": {
+    "path": "D:/BTL_HTN_v2/projects/BTL_slide_topic1_ppt169_20260718/exports/BTL_slide_hoan_chinh.pptx",
+    "name": "BTL_slide_hoan_chinh.pptx",
+    "suffix": ".pptx",
+    "kind": "file",
+    "exists": true,
+    "size_bytes": 1809939
+  },
+  "outputs": {
+    "markdown": "readback.md",
+    "asset_dir": "readback_files",
+    "image_manifest": "readback_files/image_manifest.json",
+    "image_count": 13
+  },
+  "markdown": {
+    "line_count": 596,
+    "char_count": 12978,
+    "heading_count": 31,
+    "table_count": 0,
+    "image_ref_count": 39,
+    "link_count": 0
+  },
+  "warnings": []
+}

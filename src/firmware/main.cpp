@@ -903,6 +903,57 @@ static void pollCommandInput(void) {
   }
 }
 
+/*
+ * Ghi de SystemClock_Config WEAK cua core STM32duino (mac dinh chay HSI 64 MHz).
+ * Uu tien thach anh ngoai HSE 8 MHz x9 = 72 MHz de dat do chinh xac ~30 ppm
+ * thay vi HSI ~1%. Neu HSE khong khoi dong (thieu/hong thach anh) thi tu quay
+ * ve dung HSI 64 MHz nhu cu, board van boot binh thuong.
+ * Kiem tra sau khi nap: lenh INFO in TIMER_CLOCK = 72000000 => chay HSE;
+ * neu van 64000000 => da fallback HSI (kiem tra lai thach anh/tu dien tai).
+ */
+extern "C" void SystemClock_Config(void) {
+  RCC_OscInitTypeDef osc = {};
+  RCC_ClkInitTypeDef clk = {};
+
+  // --- Uu tien: HSE 8 MHz -> PLL x9 -> 72 MHz ---
+  osc.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  osc.HSEState = RCC_HSE_ON;
+  osc.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  osc.PLL.PLLState = RCC_PLL_ON;
+  osc.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  osc.PLL.PLLMUL = RCC_PLL_MUL9;
+
+  if (HAL_RCC_OscConfig(&osc) == HAL_OK) {
+    clk.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                    RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    clk.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    clk.AHBCLKDivider = RCC_SYSCLK_DIV1;   // HCLK  = 72 MHz
+    clk.APB1CLKDivider = RCC_HCLK_DIV2;    // PCLK1 = 36 MHz -> TIM2 = 72 MHz
+    clk.APB2CLKDivider = RCC_HCLK_DIV1;    // PCLK2 = 72 MHz
+    if (HAL_RCC_ClockConfig(&clk, FLASH_LATENCY_2) == HAL_OK) {
+      return;  // Chay bang thach anh thanh cong.
+    }
+  }
+
+  // --- Fallback an toan: HSI/2 -> PLL x16 -> 64 MHz (giong mac dinh core) ---
+  osc = RCC_OscInitTypeDef{};
+  osc.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  osc.HSIState = RCC_HSI_ON;
+  osc.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  osc.PLL.PLLState = RCC_PLL_ON;
+  osc.PLL.PLLSource = RCC_PLLSOURCE_HSI_DIV2;
+  osc.PLL.PLLMUL = RCC_PLL_MUL16;
+  (void)HAL_RCC_OscConfig(&osc);
+
+  clk.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  clk.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  clk.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  clk.APB1CLKDivider = RCC_HCLK_DIV2;
+  clk.APB2CLKDivider = RCC_HCLK_DIV1;
+  (void)HAL_RCC_ClockConfig(&clk, FLASH_LATENCY_2);
+}
+
 void setup(void) {
   la_board_init();
   pinMode(LED_BUILTIN, OUTPUT);
