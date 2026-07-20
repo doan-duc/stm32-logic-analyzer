@@ -26,12 +26,11 @@
 \contentsline {section}{\numberline {4.4}Kết quả kiểm thử phần cứng}{11}{section.4.4}%
 \contentsline {subsection}{\numberline {4.4.1}Phương pháp đo}{11}{subsection.4.4.1}%
 \contentsline {subsection}{\numberline {4.4.2}Kết quả toàn vẹn tín hiệu}{11}{subsection.4.4.2}%
-\contentsline {subsection}{\numberline {4.4.3}Minh chứng kiểm thử tự động}{12}{subsection.4.4.3}%
-\contentsline {subsection}{\numberline {4.4.4}Kết quả hiển thị và giải mã giao thức}{15}{subsection.4.4.4}%
-\contentsline {subsection}{\numberline {4.4.5}Xác định giới hạn tần số lấy mẫu}{17}{subsection.4.4.5}%
-\contentsline {chapter}{\numberline {5}ĐÁNH GIÁ VÀ THẢO LUẬN}{18}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Mức độ hoàn thành theo thiết kế}{18}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Hạn chế}{18}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Hướng phát triển}{18}{section.5.3}%
-\contentsline {chapter}{\numberline {6}KẾT LUẬN}{19}{chapter.6}%
-\contentsline {chapter}{TÀI LIỆU THAM KHẢO}{20}{section*.15}%
+\contentsline {subsection}{\numberline {4.4.3}Kết quả hiển thị và giải mã giao thức}{11}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Xác định giới hạn tần số lấy mẫu}{13}{subsection.4.4.4}%
+\contentsline {chapter}{\numberline {5}ĐÁNH GIÁ VÀ THẢO LUẬN}{14}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Mức độ hoàn thành theo thiết kế}{14}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Hạn chế}{14}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Hướng phát triển}{14}{section.5.3}%
+\contentsline {chapter}{\numberline {6}KẾT LUẬN}{15}{chapter.6}%
+\contentsline {chapter}{TÀI LIỆU THAM KHẢO}{16}{section*.10}%

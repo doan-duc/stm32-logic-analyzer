@@ -194,57 +194,7 @@ def embed_hardware_evidence(latex: str) -> str:
         1,
     )
 
-    device_figure = r"""
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{../generated/hardware_evidence_20260718/log_00_device_info.png}
-\caption{Phản hồi nhận dạng và trạng thái của STM32 trên COM12 và Arduino trên COM18}
-\label{fig:device-probe}
-\end{figure}
-"""
-
-    hil_marker = r"\section{Kết quả kiểm thử phần cứng}\label{sec:hil-results}"
-    if hil_marker not in latex:
-        raise ValueError("Không xác định được mục kết quả kiểm thử phần cứng")
-    latex = latex.replace(
-        hil_marker,
-        hil_marker + "\n\n" + device_figure.strip(),
-        1,
-    )
-
     evidence_block = r"""
-\subsection{Minh chứng kiểm thử tự động}\label{sec:hil-evidence}
-
-Hình~\ref{fig:gui-gray} thể hiện trực tiếp tám kênh CH0--CH7 khi Arduino phát chuỗi Gray. Các nhật ký ở Hình~\ref{fig:hil-dma-standard}--\ref{fig:hil-isr} được tạo từ cùng phiên kiểm thử phần cứng và đối chiếu với các khung SLA8 đã lưu.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.98\textwidth]{../generated/hardware_evidence_20260718/gui_02_gray_8ch_100ksps.png}
-\caption{Dạng sóng chuỗi Gray trên tám kênh CH0--CH7 tại 100~kS/s}
-\label{fig:gui-gray}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{../generated/hardware_evidence_20260718/log_01_hil_dma_standard.png}
-\caption{Kết quả HIL chuỗi Gray ở 100~kS/s, 500~kS/s và 1~MS/s}
-\label{fig:hil-dma-standard}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{../generated/hardware_evidence_20260718/log_02_hil_dma_high.png}
-\caption{Kết quả HIL chuỗi Gray từ 2~MS/s đến 6,545~MS/s}
-\label{fig:hil-dma-high}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{../generated/hardware_evidence_20260718/log_03_hil_isr_and_1ksps.png}
-\caption{Kết quả HIL cơ chế ISR và mức lấy mẫu tối thiểu 1~kS/s}
-\label{fig:hil-isr}
-\end{figure}
-
 \subsection{Kết quả hiển thị và giải mã giao thức}\label{sec:protocol-evidence}
 
 UART, I2C và SPI đã được kiểm chứng bằng tín hiệu thực do Arduino tạo. Với UART, phần mềm nhận đúng chuỗi byte \texttt{0x55}, \texttt{0xA5}, \texttt{0x4F}, \texttt{0x4B} ở cấu hình 8N1, 57.600~baud. Với I2C, bảng giải mã nhận đúng điều kiện bắt đầu, địa chỉ \texttt{0x50} ở chiều ghi, hai byte dữ liệu \texttt{0xA5}, \texttt{0x5A} và điều kiện kết thúc. Với SPI, bộ phát Arduino sử dụng ngõ ra cực máng hở và mức kéo lên 3,3~V của STM32. Tại 500~kS/s, phần mềm nhận đủ ba cặp byte MOSI=\texttt{0x55}, MISO=\texttt{0xA5}; MOSI=\texttt{0xA5}, MISO=\texttt{0x3C}; MOSI=\texttt{0x5A}, MISO=\texttt{0xC3}, cùng hai sự kiện CS bắt đầu và kết thúc. Khung SLA8 gồm 13\,888 mẫu không ghi nhận tràn bộ đệm hoặc mất mẫu.
@@ -688,8 +638,6 @@ TC-07 & Kiểm tra bộ giải mã SPI. & Phát SCK/MOSI/MISO/CS bằng ngõ ra 
 
 \clearpage
 \section{Kết quả kiểm thử phần cứng}\label{sec:hil-results}
-
-Lệnh \texttt{INFO} xác nhận xung TIM2 bằng 72~MHz. Chuỗi Gray từ Arduino được dùng làm dữ liệu tham chiếu để kiểm tra tính toàn vẹn của mẫu và độ chính xác tần số ở hai cơ chế thu \cite{hil2026}.
 
 \subsection{Phương pháp đo}\label{sec:method}
 

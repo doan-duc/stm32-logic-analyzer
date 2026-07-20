@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.1) (preloaded format=xelatex 2026.6.10)  20 JUL 2026 09:41
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.1) (preloaded format=xelatex 2026.6.10)  20 JUL 2026 09:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1552,11 +1552,11 @@ File: media/image1.png Graphic file (type bmp)
 
 ]
 Package hyperref Info: Option `pageanchor' set `true' on input line 176.
- (Bao_cao_Topic_1_Doan_Sinh_Duc.toc [1])
+ (Bao_cao_Topic_1_Doan_Sinh_Duc.toc)
 \tf@toc=\write5
 \openout5 = `Bao_cao_Topic_1_Doan_Sinh_Duc.toc'.
 
- [2]
+ [1] [2]
 (Bao_cao_Topic_1_Doan_Sinh_Duc.lof)
 \tf@lof=\write6
 \openout6 = `Bao_cao_Topic_1_Doan_Sinh_Duc.lof'.
@@ -1593,62 +1593,42 @@ Chapter 4.
 
 ] [10
 
-]
-File: ../generated/hardware_evidence_20260718/log_00_device_info.png Graphic fi
-le (type bmp)
-<../generated/hardware_evidence_20260718/log_00_device_info.png>
- [11
+] [11
 
 ]
-File: ../generated/hardware_evidence_20260718/gui_02_gray_8ch_100ksps.png Graph
-ic file (type bmp)
-<../generated/hardware_evidence_20260718/gui_02_gray_8ch_100ksps.png>
-File: ../generated/hardware_evidence_20260718/log_01_hil_dma_standard.png Graph
-ic file (type bmp)
-<../generated/hardware_evidence_20260718/log_01_hil_dma_standard.png>
- [12]
-File: ../generated/hardware_evidence_20260718/log_02_hil_dma_high.png Graphic f
-ile (type bmp)
-<../generated/hardware_evidence_20260718/log_02_hil_dma_high.png>
- [13]
-File: ../generated/hardware_evidence_20260718/log_03_hil_isr_and_1ksps.png Grap
-hic file (type bmp)
-<../generated/hardware_evidence_20260718/log_03_hil_isr_and_1ksps.png>
- [14]
 File: ../generated/hardware_evidence_20260718/gui_03_uart_decode_ch0.png Graphi
 c file (type bmp)
 <../generated/hardware_evidence_20260718/gui_03_uart_decode_ch0.png>
- [15]
 File: ../generated/hardware_evidence_20260718/gui_04_i2c_decode_ch1_ch2.png Gra
 phic file (type bmp)
 <../generated/hardware_evidence_20260718/gui_04_i2c_decode_ch1_ch2.png>
 File: ../generated/hardware_evidence_20260718/gui_05_spi_decode_ch3_ch6.png Gra
 phic file (type bmp)
 <../generated/hardware_evidence_20260718/gui_05_spi_decode_ch3_ch6.png>
- [16]
-LaTeX Font Info:    Calculating math sizes for size <11.86258> on input line 51
-4.
+ [12]
+LaTeX Font Info:    Calculating math sizes for size <11.86258> on input line 47
+3.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 11.86385pt on input line 514.
+(Font)              scaled to size 11.86385pt on input line 473.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 8.30464pt on input line 514.
+(Font)              scaled to size 8.30464pt on input line 473.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 5.93192pt on input line 514.
+(Font)              scaled to size 5.93192pt on input line 473.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 11.8613pt on input line 514.
+(Font)              scaled to size 11.8613pt on input line 473.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 8.30286pt on input line 514.
+(Font)              scaled to size 8.30286pt on input line 473.
 LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 5.93065pt on input line 514.
- [17]
+(Font)              scaled to size 5.93065pt on input line 473.
+ [13]
 Chapter 5.
-[18
+[14
 
 ]
 Chapter 6.
-[19
+[15
 
-]) [20
+]) [16
 
 ] (Bao_cao_Topic_1_Doan_Sinh_Duc.aux)
  ***********
@@ -1657,15 +1637,15 @@ L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `Bao_cao_Topic_1_Doan_Sinh_Duc.out' has not c
 hanged.
-(rerunfilecheck)             Checksum: B467BFFA7396D04719CC97AE5FF8CA8E;7514.
+(rerunfilecheck)             Checksum: 086F1E3869E303E2EBD9C2B228DCE4AA;7284.
  ) 
 Here is how much of TeX's memory you used:
- 30635 strings out of 402982
- 602312 string characters out of 5446817
- 1160487 words of memory out of 5000000
- 58898 multiletter control sequences out of 15000+600000
+ 30584 strings out of 402982
+ 599226 string characters out of 5446817
+ 1159732 words of memory out of 5000000
+ 58852 multiletter control sequences out of 15000+600000
  631892 words of font info for 99 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,14n,117p,795b,952s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on Bao_cao_Topic_1_Doan_Sinh_Duc.pdf (25 pages).
+Output written on Bao_cao_Topic_1_Doan_Sinh_Duc.pdf (21 pages).
