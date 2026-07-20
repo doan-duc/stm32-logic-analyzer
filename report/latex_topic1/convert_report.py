@@ -419,7 +419,7 @@ TRƯỜNG ĐIỆN -- ĐIỆN TỬ\par}
 
 \vspace{0.2cm}
 
-\includegraphics[width=2.63cm,height=3.94cm]{../media/image1.png}\par
+\includegraphics[width=2.63cm,height=3.94cm]{media/image1.png}\par
 
 \vspace*{1.5cm}
 

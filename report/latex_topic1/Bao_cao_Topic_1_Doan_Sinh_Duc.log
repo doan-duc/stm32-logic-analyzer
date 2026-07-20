@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.1) (preloaded format=xelatex 2026.6.10)  20 JUL 2026 08:22
+This is XeTeX, Version 3.141592653-2.6-0.999998 (MiKTeX 26.1) (preloaded format=xelatex 2026.6.10)  20 JUL 2026 09:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1545,32 +1545,8 @@ Package hyperref Info: Link coloring OFF on input line 93.
 \openout4 = `Bao_cao_Topic_1_Doan_Sinh_Duc.out'.
 
 Package hyperref Info: Option `pageanchor' set `false' on input line 94.
-LaTeX Font Info:    Calculating math sizes for size <11.86258> on input line 12
-6.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 11.86385pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 8.30464pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 5.93192pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 11.8613pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 8.30286pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 5.93065pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 13.00139pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 9.10097pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
-(Font)              scaled to size 6.50069pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 12.99861pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 9.09903pt on input line 126.
-LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
-(Font)              scaled to size 6.4993pt on input line 126.
+File: media/image1.png Graphic file (type bmp)
+<media/image1.png>
 
 [1
 
@@ -1649,7 +1625,22 @@ phic file (type bmp)
 File: ../generated/hardware_evidence_20260718/gui_05_spi_decode_ch3_ch6.png Gra
 phic file (type bmp)
 <../generated/hardware_evidence_20260718/gui_05_spi_decode_ch3_ch6.png>
- [16] [17]
+ [16]
+LaTeX Font Info:    Calculating math sizes for size <11.86258> on input line 51
+4.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
+(Font)              scaled to size 11.86385pt on input line 514.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
+(Font)              scaled to size 8.30464pt on input line 514.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(2)/m/n' will be
+(Font)              scaled to size 5.93192pt on input line 514.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
+(Font)              scaled to size 11.8613pt on input line 514.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
+(Font)              scaled to size 8.30286pt on input line 514.
+LaTeX Font Info:    Font shape `TU/LatinModernMath(3)/m/n' will be
+(Font)              scaled to size 5.93065pt on input line 514.
+ [17]
 Chapter 5.
 [18
 
@@ -1669,10 +1660,10 @@ hanged.
 (rerunfilecheck)             Checksum: B467BFFA7396D04719CC97AE5FF8CA8E;7514.
  ) 
 Here is how much of TeX's memory you used:
- 30627 strings out of 402982
- 602170 string characters out of 5446817
+ 30635 strings out of 402982
+ 602312 string characters out of 5446817
  1160487 words of memory out of 5000000
- 58892 multiletter control sequences out of 15000+600000
+ 58898 multiletter control sequences out of 15000+600000
  631892 words of font info for 99 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  84i,14n,117p,795b,952s stack positions out of 10000i,1000n,20000p,200000b,200000s
