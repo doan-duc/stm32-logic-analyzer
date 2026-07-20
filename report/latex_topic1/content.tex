@@ -79,7 +79,7 @@ Phạm vi đề tài gồm firmware STM32, giao thức khung SLA8, phần mềm 
 
 \section{Nền tảng STM32F103C8 và hệ thống xung nhịp}\label{sec:stm32-clock}
 
-Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng PlatformIO trên VSCode và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz \cite{hil2026}.
+Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng PlatformIO trên VSCode và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz.
 
 Với nguồn HSE và PLL, quan hệ tổng quát của xung nhịp hệ thống là \(f_{\mathrm{SYSCLK}}=f_{\mathrm{HSE}}\times M\), sau đó \(f_{\mathrm{HCLK}}=f_{\mathrm{SYSCLK}}/\mathrm{HPRE}\). Xung nhịp TIM2 phụ thuộc bộ chia APB1: \(f_{\mathrm{TIM2}}=f_{\mathrm{PCLK1}}\) khi APB1 không chia và \(f_{\mathrm{TIM2}}=2f_{\mathrm{PCLK1}}\) khi hệ số chia APB1 lớn hơn 1 \cite{st-rm0008}. Với bộ chia \(PSC\) và thanh ghi tự nạp lại \(ARR\), tần số lấy mẫu được xác định bởi
 \[
@@ -145,6 +145,98 @@ Firmware đọc một lần thanh ghi IDR của GPIOA rồi tách các bit tươ
 \section{Giao thức truyền dữ liệu sau thu thập}\label{sec:protocol}
 
 Sau khi phiên thu hoàn tất và nhận lệnh \texttt{DUMP}, firmware truyền dữ liệu đến máy tính theo khung SLA8. Mỗi mẫu được lưu bằng một byte, trong đó bit 0 đến bit 7 tương ứng CH0 đến CH7. Phần đầu khung chứa mã nhận dạng, phiên bản, số kênh, tần số lấy mẫu, số mẫu, vị trí kích hoạt, cờ trạng thái và mã kiểm tra.
+
+\section{Giao thức UART}\label{sec:uart-theory}
+
+UART (Universal Asynchronous Receiver/Transmitter) là giao thức truyền nối tiếp không đồng bộ. Mỗi khung UART gồm một bit bắt đầu (logic~0), tám bit dữ liệu D0--D7, bit chẵn lẻ tùy chọn (PB) và một bit kết thúc (logic~1). Đường truyền ở mức cao (idle) khi không có dữ liệu; bộ nhận phát hiện bit bắt đầu bằng cạnh xuống từ logic~1 xuống logic~0 và lấy mẫu từng bit tại trung tâm chu kỳ bit.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\scriptsize, >=Latex]
+  % --- geometry ---
+  \def\bw{1.08}   % bit cell width
+  \def\bh{0.65}   % bit cell height
+  \def\wy{-2.3}   % waveform baseline y
+  \def\wh{0.55}   % waveform high amplitude
+
+  % ---- FRAME CELLS ----
+  % START (filled)
+  \fill[gray!55] (0,0) rectangle (\bw,\bh);
+  \draw[thick] (0,0) rectangle (\bw,\bh);
+  \node[font=\scriptsize\bfseries] at ({0.5*\bw},{0.5*\bh}) {START};
+
+  % D0..D7
+  \foreach \i in {0,...,7} {
+    \draw[thick] ({(\i+1)*\bw},0) rectangle ({(\i+2)*\bw},\bh);
+    \node at ({(\i+1.5)*\bw},{0.5*\bh}) {D\i};
+  }
+
+  % PB (dashed border = optional)
+  \draw[thick,dashed] ({9*\bw},0) rectangle ({10*\bw},\bh);
+  \node at ({9.5*\bw},{0.5*\bh}) {PB};
+
+  % STOP (filled)
+  \fill[gray!55] ({10*\bw},0) rectangle ({11*\bw},\bh);
+  \draw[thick] ({10*\bw},0) rectangle ({11*\bw},\bh);
+  \node[font=\scriptsize\bfseries] at ({10.5*\bw},{0.5*\bh}) {STOP};
+
+  % ---- LABELS ABOVE ----
+  \node[above,align=center] at ({0.5*\bw},\bh) {Start bit\\logic 0};
+  % bracket over D0-D7
+  \draw ({1.05*\bw},{\bh+0.55}) -- ({1.05*\bw},{\bh+0.35}) --
+        ({8.95*\bw},{\bh+0.35}) -- ({8.95*\bw},{\bh+0.55});
+  \node[above] at ({5*\bw},{\bh+0.35}) {Word data};
+  \node[above,align=center] at ({9.5*\bw},\bh) {Parity bit\\(optional)};
+  \node[above,align=center] at ({10.5*\bw},\bh) {Stop bit\\logic 1};
+
+  % ---- WAVEFORM ----
+  % idle high before START
+  \draw[thick] ({-0.6},{\wy+\wh}) -- (0,{\wy+\wh});
+  % START: falling edge, hold low for 1 bit
+  \draw[thick] (0,{\wy+\wh}) -- (0,\wy) -- (\bw,\wy);
+  % D0=0 low
+  \draw[thick] (\bw,\wy) -- ({2*\bw},\wy);
+  % D1=1 rising
+  \draw[thick] ({2*\bw},\wy) -- ({2*\bw},{\wy+\wh}) -- ({3*\bw},{\wy+\wh});
+  % D2=1 high
+  \draw[thick] ({3*\bw},{\wy+\wh}) -- ({4*\bw},{\wy+\wh});
+  % D3=0 falling
+  \draw[thick] ({4*\bw},{\wy+\wh}) -- ({4*\bw},\wy) -- ({5*\bw},\wy);
+  % D4=1 rising
+  \draw[thick] ({5*\bw},\wy) -- ({5*\bw},{\wy+\wh}) -- ({6*\bw},{\wy+\wh});
+  % D5=0 falling
+  \draw[thick] ({6*\bw},{\wy+\wh}) -- ({6*\bw},\wy) -- ({7*\bw},\wy);
+  % D6=1 rising
+  \draw[thick] ({7*\bw},\wy) -- ({7*\bw},{\wy+\wh}) -- ({8*\bw},{\wy+\wh});
+  % D7=1 high
+  \draw[thick] ({8*\bw},{\wy+\wh}) -- ({9*\bw},{\wy+\wh});
+  % PB=0 falling (example)
+  \draw[thick] ({9*\bw},{\wy+\wh}) -- ({9*\bw},\wy) -- ({10*\bw},\wy);
+  % STOP: rising, hold high, then idle
+  \draw[thick] ({10*\bw},\wy) -- ({10*\bw},{\wy+\wh}) -- ({11.6*\bw},{\wy+\wh});
+
+  % sampling tick marks at center of each bit
+  \foreach \i in {0,...,10} {
+    \pgfmathsetmacro{\cx}{(\i+0.5)*\bw}
+    \draw ({(\i+0.5)*\bw},{\wy-0.12}) -- ({(\i+0.5)*\bw},{\wy+0.12});
+  }
+
+  % ---- LABELS BELOW WAVEFORM ----
+  \node[below,align=center] at ({0.5*\bw},{\wy-0.18})
+    {Start by detecting\\transition 1\,{\scriptsize$\rightarrow$}\,0};
+  \draw[<->] ({\bw},{\wy-0.85}) -- ({9*\bw},{\wy-0.85});
+  \node[below] at ({5*\bw},{\wy-0.85}) {Incoming data sampled at the bit-pulse center};
+  \node[below,align=center] at ({10.5*\bw},{\wy-0.18}) {Sample\\stop bit};
+
+  % vertical dashed guides connecting frame to waveform
+  \foreach \x in {0,\bw,...,10.01} {
+    \pgfmathsetmacro{\xx}{\x*\bw}
+    % skip — just use natural positions
+  }
+\end{tikzpicture}
+\caption{Cấu trúc khung UART 8N1 và thời điểm lấy mẫu}
+\label{fig:uart-frame}
+\end{figure}
 
 \chapter{THIẾT KẾ HỆ THỐNG}\label{thiux1ebft-kux1ebf-hux1ec7-thux1ed1ng}
 
@@ -485,7 +577,7 @@ Cấu hình & Đo được & Chênh lệch & Kết quả \\ \hline
 \end{tabular}
 \end{table}
 
-Tần số đo trùng với tần số cấu hình (chênh lệch dưới 0,03\%, là nhiễu của phép đo) đến 6,545~MS/s \((=72~\text{MHz}/11)\). Từ 7,2~MS/s tần số đo giảm và dừng quanh 6,8~MS/s. Vậy giới hạn ở xung 72~MHz là \textbf{6,545~MS/s}; giá trị này được đặt làm ngưỡng \path{MAX_TARGET_RATE} của firmware. So với cấu hình HSI 64~MHz (giới hạn 5,818~MS/s), việc dùng thạch anh HSE nâng giới hạn thêm khoảng 12,5\%. Cơ chế ISR có giới hạn 400~kS/s do thời gian xử lý ngắt \cite{hil2026}.
+Tần số đo trùng với tần số cấu hình (chênh lệch dưới 0,03\%, là nhiễu của phép đo) đến 6,545~MS/s \((=72~\text{MHz}/11)\). Từ 7,2~MS/s tần số đo giảm và dừng quanh 6,8~MS/s. Vậy giới hạn ở xung 72~MHz là \textbf{6,545~MS/s}; giá trị này được đặt làm ngưỡng \path{MAX_TARGET_RATE} của firmware. So với cấu hình HSI 64~MHz (giới hạn 5,818~MS/s), việc dùng thạch anh HSE nâng giới hạn thêm khoảng 12,5\%. Cơ chế ISR có giới hạn 400~kS/s do thời gian xử lý ngắt.
 
 \chapter{ĐÁNH GIÁ VÀ THẢO LUẬN}\label{ux111uxe1nh-giuxe1-vuxe0-thux1ea3o-luux1eadn}
 
@@ -535,9 +627,6 @@ Các hướng phát triển tiếp theo gồm:
 \begin{thebibliography}{99}
 \phantomsection
 \addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
-\bibitem{course} Tài liệu học phần Bài tập lớn Hệ thống nhúng và thiết kế giao tiếp nhúng, học kỳ 2025.2.
-\bibitem{repo} Mã nguồn dự án thiết bị phân tích logic tám kênh: \texttt{platformio.ini}, \texttt{src/firmware}, \texttt{src/software} và \texttt{tests}.
-\bibitem{hil2026} Nhóm thực hiện, \emph{Kết quả HIL trên STM32F103C8 chạy thạch anh HSE 72~MHz}, \path{report/generated/hil_72mhz_summary.md}.
 \bibitem{st-ds5319} STMicroelectronics, \emph{STM32F103x8/xB medium-density performance line}, DS5319 Rev. 20. \href{https://www.st.com/resource/en/datasheet/CD00161566.pdf}{ST DS5319 (PDF)}.
 \bibitem{st-rm0008} STMicroelectronics, \emph{RM0008: STM32F10xxx reference manual}, Rev. 21. \href{https://www.st.com/resource/en/reference_manual/cd00171190-stm32f101xx-stm32f102xx-stm32f103xx-stm32f105xx-and-stm32f107xx-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf}{ST RM0008 (PDF)}.
 \bibitem{shannon1949} C. E. Shannon, “Communication in the Presence of Noise,” \emph{Proceedings of the IRE}, vol. 37, no. 1, pp. 10--21, 1949.
