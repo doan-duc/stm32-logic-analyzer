@@ -468,7 +468,7 @@ Các chỉ tiêu phi chức năng tập trung vào độ tin cậy của dữ li
 
 THEORY_INSERT = r"""\section{Nền tảng STM32F103C8 và hệ thống xung nhịp}\label{sec:stm32-clock}
 
-Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng Arduino và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz \cite{hil2026}.
+Dự án sử dụng môi trường \texttt{genericSTM32F103C8}, nền tảng PlatformIO trên VSCode và bộ định thời TIM2 cho khối thu thập. STM32F103C8 sử dụng lõi ARM Cortex--M3, tần số lõi tối đa 72~MHz, bộ nhớ Flash 64~KB và SRAM 20~KB \cite{st-ds5319}. Firmware ưu tiên thạch anh ngoài HSE 8~MHz qua PLL nhân 9 để tạo xung hệ thống 72~MHz; khi HSE không khởi động, hệ thống quay về nguồn HSI 64~MHz. Kết quả HIL xác nhận lệnh \texttt{INFO} trả về xung TIM2 bằng 72~MHz \cite{hil2026}.
 
 Với nguồn HSE và PLL, quan hệ tổng quát của xung nhịp hệ thống là \(f_{\mathrm{SYSCLK}}=f_{\mathrm{HSE}}\times M\), sau đó \(f_{\mathrm{HCLK}}=f_{\mathrm{SYSCLK}}/\mathrm{HPRE}\). Xung nhịp TIM2 phụ thuộc bộ chia APB1: \(f_{\mathrm{TIM2}}=f_{\mathrm{PCLK1}}\) khi APB1 không chia và \(f_{\mathrm{TIM2}}=2f_{\mathrm{PCLK1}}\) khi hệ số chia APB1 lớn hơn 1 \cite{st-rm0008}. Với bộ chia \(PSC\) và thanh ghi tự nạp lại \(ARR\), tần số lấy mẫu được xác định bởi
 \[
@@ -544,7 +544,7 @@ HARDWARE_TABLE_INSERT = r"""\begin{longtable}[]{@{}
 \toprule\noalign{}
 \textbf{Thành phần} & \textbf{Cấu hình} & \textbf{Chức năng/Ghi chú} \\
 \midrule\noalign{}
-Bo mạch và vi điều khiển & STM32F103C8, nền tảng Arduino & TIM2 điều khiển quá trình lấy mẫu bằng DMA hoặc ngắt. \\
+Bo mạch và vi điều khiển & STM32F103C8, nền tảng PlatformIO trên VSCode & TIM2 điều khiển quá trình lấy mẫu bằng DMA hoặc ngắt. \\
 Kênh đo & CH0--CH7 ánh xạ tới PA0--PA7 & Đọc đồng thời tám bit thấp của GPIOA IDR. \\
 Giao tiếp máy tính & USART1 trên PA9/PA10, 1.000.000~baud & Truyền lệnh điều khiển và khung dữ liệu SLA8. \\
 Nguồn tín hiệu thử & Arduino UNO & Tạo chuỗi Gray, UART, I2C và SPI bằng ngõ ra cực máng hở; mức HIGH do điện trở kéo lên 3,3~V tại STM32 tạo ra. \\
